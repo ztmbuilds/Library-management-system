@@ -1,4 +1,3 @@
-import httpStatus from 'http-status';
 import authService from '../services/auth.service';
 import { NextFunction, Request, Response } from 'express';
 
@@ -27,7 +26,7 @@ class AuthController {
     try {
       if (req.body) {
         const { username_or_email, password } = req.body;
-        const { user, token, refreshToken } = await authService.login({
+        const { user, accessToken, refreshToken } = await authService.login({
           username_or_email,
           password,
         });
@@ -39,29 +38,64 @@ class AuthController {
 
         res.status(200).json({
           message: 'User login Sucessful',
-          token,
+          accessToken,
           user,
         });
       }
     } catch (err) {
       next(err);
+      console.log(err);
     }
   }
 
-  async refreshAccessToken(req: Request, res: Response) {
-    const { accessToken, refreshTokenJWTNew } =
-      await authService.refreshAccessToken(req.cookies.refreshToken);
+  async refreshAccessToken(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { accessToken, refreshTokenJWTNew } =
+        await authService.refreshAccessToken(req.cookies.refreshToken);
 
-    res.clearCookie('refreshToken');
-    res.cookie('refreshToken', refreshTokenJWTNew, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-      httpOnly: true,
-    });
+      res.clearCookie('refreshToken');
+      res.cookie('refreshToken', refreshTokenJWTNew, {
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        httpOnly: true,
+      });
 
-    res.status(200).json({
-      message: 'Access Token refreshed successfully',
-      accessToken,
-    });
+      res.status(200).json({
+        message: 'Access Token refreshed successfully',
+        accessToken,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async requestEmailVerification(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const expiresAt = await authService.requestEmailVerification(
+        req.body.email
+      );
+
+      res.status(200).json({
+        message: 'OTP sent to email successfully',
+        expiresAt,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async verifyEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      await authService.verifyEmail(req.body);
+      res.status(200).json({
+        message: 'Email verified successfully',
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 }
 

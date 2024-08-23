@@ -8,5 +8,12 @@ router.post('/signup', authController.signup);
 
 router.post('/login', authController.login);
 
-router.post('/refresh-access-token', authController.refreshAccessToken);
+router.get('/refresh-access-token', authController.refreshAccessToken);
+
+router.post(
+  '/request-email-verification',
+  authController.requestEmailVerification
+);
+
+router.post('/verify-email', authController.verifyEmail);
 export default router;

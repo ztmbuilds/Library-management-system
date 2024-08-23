@@ -1,17 +1,24 @@
 import { JWT_SECRET } from '../config';
 import { AppError } from '../middlewares/error.middleware';
 import { IUser, User } from '../models/user.model';
-import { IUserLogin, IUserSignup, RefreshTokenDecoded } from '../types/auth';
+import {
+  IUserLogin,
+  IUserSignup,
+  IVerifyEmail,
+  RefreshTokenDecoded,
+} from '../types/auth';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { compare, hash } from 'bcryptjs';
 import httpStatus from 'http-status';
 import crypto from 'crypto';
 import Token from '../models/token.model';
+import { generateOtp } from '../utils/generate-otp';
+import EmailService from './email.service';
 
 class AuthService {
-  async signup(payload: IUserSignup) {
+  async signup(data: IUserSignup) {
     try {
-      const { username, email, password } = payload;
+      const { username, email, password } = data;
 
       const existingUser = await User.findOne({ email });
 
@@ -26,21 +33,78 @@ class AuthService {
 
       await newUser.save();
 
-      const { password: _, ...rest } = newUser;
-
-      return { user: rest };
+      return {
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+          role: newUser.role,
+        },
+      };
     } catch (err) {
       throw err;
     }
   }
 
-  async login(payload: IUserLogin) {
+  async requestEmailVerification(email: string) {
     try {
-      const { username_or_email, password } = payload;
+      const user = await User.findOne({ email });
+      if (!user) throw new AppError('User does not exist', 404);
+      if (user.isVerified) throw new AppError('User is already verified', 400);
+
+      const verifyToken = generateOtp();
+
+      const hashedToken = await hash(verifyToken, 10);
+      const expiresAt = Date.now() + 1000 * 60 * 15;
+      await Token.create({
+        userId: user.id,
+        token: hashedToken,
+        type: 'verify_email',
+        expiresAt,
+      });
+      await new EmailService(user).sendEmailVerificationOTPMail(verifyToken);
+
+      return new Date(expiresAt);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async verifyEmail(data: IVerifyEmail) {
+    const { userId, verifyToken } = data;
+    try {
+      const user = await User.findById(userId);
+      if (!user) throw new AppError('User not found', 404);
+      if (user.isVerified) throw new AppError('Email already verified', 409);
+
+      const token = await Token.findOne({ type: 'verify_email', userId });
+      if (!token)
+        throw new AppError('Invalid or expired verification token', 400);
+
+      if (token.expiresAt < new Date(Date.now()))
+        throw new AppError('Invalid or expired verification token', 400);
+
+      const isValid = compare(verifyToken, token.token);
+      if (!isValid)
+        throw new AppError('Invalid or expired verification token', 400);
+
+      user.isVerified = true;
+      await user.save();
+      await token.deleteOne();
+
+      await new EmailService(user).sendVerificationSuccessMail();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async login(data: IUserLogin) {
+    try {
+      const { username_or_email, password } = data;
 
       const user = await User.findOne({
         $or: [{ email: username_or_email }, { username: username_or_email }],
-      }).lean();
+      });
       if (!user) {
         console.log(user);
         throw new AppError(
@@ -55,14 +119,20 @@ class AuthService {
           httpStatus.UNAUTHORIZED
         );
 
-      const authTokens = await this.generateAuthTokens(user.id);
-
-      const { password: _, ...rest } = user;
+      console.log(user.id);
+      const { accessToken, refreshToken } = await this.generateAuthTokens(
+        user.id
+      );
 
       return {
-        user: rest,
-        token: authTokens.accessToken,
-        refreshToken: authTokens.refreshToken,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        },
+        accessToken,
+        refreshToken,
       };
     } catch (err) {
       throw err;
@@ -70,75 +140,91 @@ class AuthService {
   }
 
   private async generateAuthTokens(id: string) {
-    const accessToken = jwt.sign({ id }, JWT_SECRET, { expiresIn: '1d' });
+    try {
+      const accessToken = jwt.sign({ id }, JWT_SECRET, { expiresIn: '1d' });
 
-    const refreshToken = crypto.randomBytes(32).toString('hex');
-    const hashedRefreshToken = await hash(refreshToken, 10);
+      const refreshToken = crypto.randomBytes(32).toString('hex');
+      const hashedRefreshToken = await hash(refreshToken, 10);
 
-    const refreshTokenJWT = jwt.sign({ id, refreshToken }, JWT_SECRET, {
-      expiresIn: '7d',
-    });
+      const refreshTokenJWT = jwt.sign({ id, refreshToken }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
 
-    await new Token({
-      userId: id,
-      token: hashedRefreshToken,
-      type: 'refresh_token',
-      expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 7,
-    });
+      await Token.create({
+        userId: id,
+        token: hashedRefreshToken,
+        type: 'refresh_token',
+        expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 7,
+      });
 
-    return { accessToken, refreshToken: refreshTokenJWT };
+      return { accessToken, refreshToken: refreshTokenJWT };
+    } catch (err) {
+      throw err;
+    }
   }
 
   async refreshAccessToken(refreshTokenJWT: string) {
-    // Decode and verify the refresh token JWT
-    const decoded = jwt.verify(
-      refreshTokenJWT,
-      JWT_SECRET
-    ) as RefreshTokenDecoded;
-    let { refreshToken } = decoded;
-    const { id } = decoded;
+    try {
+      // Decode and verify the refresh token JWT
+      const decoded = jwt.verify(
+        refreshTokenJWT,
+        JWT_SECRET
+      ) as RefreshTokenDecoded;
+      console.log(decoded);
 
-    const user = await User.findById(id);
-    if (!user) throw new AppError('User does not exist', 404);
+      const { id, refreshToken } = decoded;
 
-    // Check if the refresh token is valid
-    const hashedRefreshTokens = await Token.find({
-      userId: id,
-      type: 'refresh_token',
-    });
-    if (hashedRefreshTokens.length === 0)
-      throw new AppError('Invalid or expired refresh token', 401);
+      const user = await User.findById(id);
+      if (!user) throw new AppError('User does not exist', 404);
 
-    let tokenExists = false;
-    for (const token of hashedRefreshTokens) {
-      const isValid = await compare(refreshToken, token.token);
-      if (isValid) {
-        tokenExists = true;
-        break;
+      // Check if the refresh token is valid
+      const hashedRefreshTokens = await Token.find({
+        userId: id,
+        type: 'refresh_token',
+      });
+
+      if (hashedRefreshTokens.length === 0)
+        throw new AppError('Invalid or expired refresh token', 401);
+
+      let tokenExists = false;
+      for (const token of hashedRefreshTokens) {
+        const isValid = await compare(refreshToken, token.token);
+        if (isValid) {
+          tokenExists = true;
+          break;
+        }
       }
+
+      if (!tokenExists)
+        throw new AppError('Invalid or expired refresh token', 401);
+
+      // Issue new access token and refresh token
+      const accessToken = jwt.sign({ id }, JWT_SECRET, { expiresIn: '1d' });
+
+      // Generate and hash new refresh token
+      const refreshTokenNew = crypto.randomBytes(32).toString('hex');
+      const hashedRefreshTokenNew = await hash(refreshTokenNew, 10);
+      const refreshTokenJWTNew = jwt.sign(
+        { id, refreshToken: refreshTokenNew },
+        JWT_SECRET,
+        {
+          expiresIn: '7d',
+        }
+      );
+
+      await Token.create([
+        {
+          userId: id,
+          token: hashedRefreshTokenNew,
+          type: 'refresh_token',
+          expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        },
+      ]);
+
+      return { accessToken, refreshTokenJWTNew };
+    } catch (err) {
+      throw err;
     }
-
-    if (!tokenExists)
-      throw new AppError('Invalid or expired refresh token', 401);
-
-    // Issue new access token and refresh token
-    const accessToken = jwt.sign({ id }, JWT_SECRET, { expiresIn: '1d' });
-
-    // Generate and hash new refresh token
-    refreshToken = crypto.randomBytes(32).toString('hex');
-    const hashedRefreshToken = await hash(refreshToken, 10);
-    const refreshTokenJWTNew = jwt.sign({ id, refreshToken }, JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    await Token.create({
-      userId: id,
-      token: hashedRefreshToken,
-      type: 'refresh_token',
-      expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 7,
-    });
-
-    return { accessToken, refreshTokenJWTNew };
   }
 }
 

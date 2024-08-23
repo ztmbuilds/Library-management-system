@@ -13,3 +13,8 @@ export interface RefreshTokenDecoded extends Jwt.JwtPayload {
   refreshToken: string;
   id: string;
 }
+
+export interface IVerifyEmail {
+  userId: string;
+  verifyToken: string;
+}
