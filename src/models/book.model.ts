@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 
-interface IBook extends mongoose.Document {
+export interface IBook extends mongoose.Document {
   title: string;
   author: string;
   genre: string;
   description?: string;
   available: boolean;
+  totalCopies: number;
+  availableCopies: number;
 }
 
 const BookSchema: mongoose.Schema = new mongoose.Schema({
@@ -27,6 +29,14 @@ const BookSchema: mongoose.Schema = new mongoose.Schema({
   availabe: {
     type: Boolean,
     default: true,
+  },
+  totalCopies: {
+    type: Number,
+    required: true,
+  },
+  availableCopies: {
+    type: Number,
+    required: true,
   },
 });
 
