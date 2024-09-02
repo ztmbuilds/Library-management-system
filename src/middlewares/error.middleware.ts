@@ -78,7 +78,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log('INSIDE!!!!!!');
+  console.log('Inside Error Middleware');
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
