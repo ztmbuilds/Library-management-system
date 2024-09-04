@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import bookController from '../controllers/book.controller';
 import {
+  borrowBookValidationRules,
   createBookValidationRules,
   deleteBookValidationRules,
   editBookValidationRules,
@@ -22,16 +23,21 @@ router
   )
   .get(bookController.getAllBooks);
 
+router.use(passport.authenticate('jwt', { session: false }));
 router
   .route('/:id')
+
   .patch(
-    passport.authenticate('jwt', { session: false }),
     restrictTo([UserRole.ADMIN]),
     validate(editBookValidationRules),
     bookController.editBook
   )
+  .post(
+    restrictTo([UserRole.USER]),
+    validate(borrowBookValidationRules),
+    bookController.borrowBook
+  )
   .delete(
-    passport.authenticate('jwt', { session: false }),
     restrictTo([UserRole.ADMIN]),
     validate(deleteBookValidationRules),
     bookController.deleteBook

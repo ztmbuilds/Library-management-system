@@ -3,6 +3,8 @@ import APIFeatures from '../utils/features';
 import { QueryString } from '../types';
 import { UpdateBookInput } from '../types';
 import { AppError } from '../middlewares/error.middleware';
+import { BorrowingService } from './borrowing.service';
+import { Dayjs } from 'dayjs';
 
 class BookService {
   async createBook(book: IBook) {
@@ -45,6 +47,27 @@ class BookService {
     try {
       const book = await Book.findByIdAndDelete(id);
       if (!book) throw new AppError('No book with that ID found', 404);
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async borrowBook(userId: string, bookId: string, returnDate: Dayjs) {
+    try {
+      const book = await Book.findById(bookId);
+      if (!book) throw new AppError('No book with that ID found', 404);
+
+      if (book.availableCopies === 0)
+        throw new AppError('There are no available copies of this book', 409);
+
+      const borrowRecord = await new BorrowingService(userId).borrow(
+        bookId,
+        returnDate
+      );
+      book.availableCopies -= 1;
+      await book.save();
+
+      return borrowRecord;
     } catch (err) {
       throw err;
     }

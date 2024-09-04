@@ -1,4 +1,10 @@
 import { body, param } from 'express-validator';
+import dayjs, { Dayjs } from 'dayjs';
+import tz from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(tz);
+dayjs.extend(utc);
 
 export const createBookValidationRules = [
   body('title')
@@ -101,4 +107,24 @@ export const editBookValidationRules = [
 
 export const deleteBookValidationRules = [
   param('id').notEmpty().withMessage('Id param is required'),
+];
+
+export const borrowBookValidationRules = [
+  param('id').notEmpty().withMessage('Id param is required'),
+
+  body('returnDate')
+    .notEmpty()
+    .withMessage('return date is required')
+    .customSanitizer((value: string) => {
+      return dayjs.utc(value, 'YYYY-MM-DD');
+    })
+    .custom((value: Dayjs) => {
+      const today = dayjs.utc().startOf('day');
+
+      console.log(value, today);
+      if (value.isBefore(today)) {
+        throw new Error('return date must not be before today');
+      }
+      return true;
+    }),
 ];

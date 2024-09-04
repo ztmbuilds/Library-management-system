@@ -25,12 +25,12 @@ export const signupValidationRules = [
     .trim()
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
-    .notEmpty()
     .withMessage('Password is required')
     .custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error('Password and Password Confirm must be the same');
       }
+      return true;
     }),
   body('role')
     .optional()

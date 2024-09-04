@@ -5,7 +5,7 @@ export interface IBook extends mongoose.Document {
   author: string;
   genre: string;
   description?: string;
-  available: boolean;
+
   totalCopies: number;
   availableCopies: number;
 }
@@ -25,10 +25,6 @@ const BookSchema: mongoose.Schema = new mongoose.Schema({
   },
   description: {
     type: String,
-  },
-  availabe: {
-    type: Boolean,
-    default: true,
   },
   totalCopies: {
     type: Number,

@@ -8,15 +8,22 @@ export default function validate(rules: ValidationChain[]) {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return next(
-        new AppError(
-          errors
-            .array()
-            .map((err) => err.msg)
-            .join('. '),
-          400
-        )
-      );
+      // return next(
+      //   // new AppError(
+      //   //   errors
+      //   //     .array()
+      //   //     .map((err) => err.msg)
+      //   //     .join('. '),
+      //   //   400
+      //   // )
+
+      //   new Err
+      // );
+
+      return res.status(422).json({
+        message: 'Validation Failed',
+        errors: errors.array(),
+      });
     } else {
       next();
     }

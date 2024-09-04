@@ -48,6 +48,21 @@ class BookController {
       next(err);
     }
   }
+
+  async borrowBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const borrowRecord = await bookService.borrowBook(
+        req.user?.id as string,
+        req.params.id,
+        req.body.returnDate
+      );
+      res.status(200).json({
+        borrowRecord,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default new BookController();
