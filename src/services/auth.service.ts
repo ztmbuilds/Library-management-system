@@ -6,7 +6,7 @@ import {
   IUserSignup,
   IVerifyEmail,
   RefreshTokenDecoded,
-} from '../types/auth';
+} from '../types';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { compare, hash } from 'bcryptjs';
 import httpStatus from 'http-status';

@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
 import { hash } from 'bcryptjs';
+import { UserRole } from '../types';
 
 export interface IUser extends mongoose.Document {
   username: string;
   email: string;
   password: string;
-  role: string;
+  role: UserRole;
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;

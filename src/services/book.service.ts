@@ -1,7 +1,7 @@
 import Book, { IBook } from '../models/book.model';
 import APIFeatures from '../utils/features';
 import { QueryString } from '../types';
-import { UpdateBookInput } from '../types/book';
+import { UpdateBookInput } from '../types';
 import { AppError } from '../middlewares/error.middleware';
 
 class BookService {
