@@ -3,13 +3,13 @@ import bookController from '../controllers/book.controller';
 import {
   borrowBookValidationRules,
   createBookValidationRules,
-  deleteBookValidationRules,
   editBookValidationRules,
 } from '../validation/book.validation';
 import validate from '../middlewares/validation-middleware';
 import passport from '../strategies/jwt.passport.strategy';
 import { restrictTo } from '../middlewares/auth.middleware';
 import { UserRole } from '../types/enums';
+import { User } from '../models/user.model';
 
 const router = Router();
 
@@ -32,15 +32,21 @@ router
     validate(editBookValidationRules),
     bookController.editBook
   )
-  .post(
-    restrictTo([UserRole.USER]),
-    validate(borrowBookValidationRules),
-    bookController.borrowBook
-  )
-  .delete(
-    restrictTo([UserRole.ADMIN]),
-    validate(deleteBookValidationRules),
-    bookController.deleteBook
-  );
+
+  .delete(restrictTo([UserRole.ADMIN]), bookController.deleteBook);
+
+router.post(
+  '/:id/borrow',
+  restrictTo([UserRole.USER]),
+  validate(borrowBookValidationRules),
+  bookController.borrowBook
+);
+
+router.patch(
+  '/:id/return',
+  restrictTo([UserRole.USER]),
+
+  bookController.returnBook
+);
 
 export default router;

@@ -5,6 +5,7 @@ interface IBorrowing extends mongoose.Document {
   bookId: mongoose.Types.ObjectId;
   borrowDate: Date;
   returnDate: Date;
+  returned: boolean;
   renewed: boolean;
 }
 
@@ -27,6 +28,10 @@ const borrowingSchema: mongoose.Schema = new mongoose.Schema({
   returnDate: {
     type: Date,
     required: true,
+  },
+  returned: {
+    type: Boolean,
+    default: false,
   },
 
   renewed: {

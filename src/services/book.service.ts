@@ -72,6 +72,21 @@ class BookService {
       throw err;
     }
   }
+
+  async returnBook(userId: string, bookId: string) {
+    try {
+      const book = await Book.findById(bookId);
+      if (!book) throw new AppError('No book with that ID found', 404);
+
+      await new BorrowingService(userId).return(bookId);
+
+      book.availableCopies += 1;
+      await book.save();
+      return book;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 export default new BookService();

@@ -37,7 +37,6 @@ export class BorrowingService {
       if (borrowRecord)
         throw new AppError('This book has already been borrowed by you', 409);
 
-      console.log(returnDate.toDate());
       const newBorrowRecord = await Borrowing.create({
         userId: this.userId,
         bookId,
@@ -45,6 +44,22 @@ export class BorrowingService {
       });
 
       return newBorrowRecord;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async return(bookId: string) {
+    try {
+      const borrowRecord = await Borrowing.findOne({
+        bookId,
+        userId: this.userId,
+        returned: false,
+      });
+      if (!borrowRecord) throw new AppError('No borrow record found', 404);
+
+      borrowRecord.returned = true;
+      await borrowRecord.save();
     } catch (err) {
       throw err;
     }

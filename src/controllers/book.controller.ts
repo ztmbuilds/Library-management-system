@@ -63,6 +63,22 @@ class BookController {
       next(err);
     }
   }
+
+  async returnBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const book = await bookService.returnBook(
+        req.user?.id as string,
+        req.params.id
+      );
+
+      res.status(200).json({
+        message: 'Book returned successfully',
+        book,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default new BookController();

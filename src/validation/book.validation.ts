@@ -105,13 +105,7 @@ export const editBookValidationRules = [
     }),
 ];
 
-export const deleteBookValidationRules = [
-  param('id').notEmpty().withMessage('Id param is required'),
-];
-
 export const borrowBookValidationRules = [
-  param('id').notEmpty().withMessage('Id param is required'),
-
   body('returnDate')
     .notEmpty()
     .withMessage('return date is required')
