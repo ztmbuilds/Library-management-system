@@ -46,4 +46,19 @@ export default class EmailService {
 
     return await this.sendMail(subject, message, receipient);
   }
+
+  async sendReservationSuccessMail(bookTitle: string, bookAuthor: string) {
+    const subject = 'Reservation Created Successfully';
+    const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been created successfully`;
+
+    return await this.sendMail(subject, message, this.user.email);
+  }
+
+  async sendReservationDeletedMail(bookTitle: string, bookAuthor: string) {
+    const subject = 'Reservation Deleted Successfully';
+
+    const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been deleted successfully`;
+
+    return await this.sendMail(subject, message, this.user.email);
+  }
 }

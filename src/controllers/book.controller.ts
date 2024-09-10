@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import bookService from '../services/book.service';
 import { QueryString } from '../types/';
+import { IUser } from '../models/user.model';
 
 class BookController {
   async createBook(req: Request, res: Response, next: NextFunction) {
@@ -52,7 +53,7 @@ class BookController {
   async borrowBook(req: Request, res: Response, next: NextFunction) {
     try {
       const borrowRecord = await bookService.borrowBook(
-        req.user?.id as string,
+        req.user as IUser,
         req.params.id,
         req.body.returnDate
       );
@@ -67,7 +68,7 @@ class BookController {
   async returnBook(req: Request, res: Response, next: NextFunction) {
     try {
       const book = await bookService.returnBook(
-        req.user?.id as string,
+        req.user as IUser,
         req.params.id
       );
 

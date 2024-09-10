@@ -9,9 +9,11 @@ import validate from '../middlewares/validation-middleware';
 import passport from '../strategies/jwt.passport.strategy';
 import { restrictTo } from '../middlewares/auth.middleware';
 import { UserRole } from '../types/enums';
-import { User } from '../models/user.model';
+import reservationRouter from './reservation.route';
 
 const router = Router();
+
+router.use('/:id/reservations', reservationRouter);
 
 router
   .route('/')
