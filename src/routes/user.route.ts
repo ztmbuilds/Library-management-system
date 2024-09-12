@@ -10,8 +10,8 @@ const router = Router();
 
 router.use(passport.authenticate('jwt', { session: false }));
 router
-  .route('/me')
-  .post(validate(userUpdateValidationRules), userController.updateMe)
+  .route('/profile')
+  .patch(validate(userUpdateValidationRules), userController.updateMe)
   .get(userController.getMe);
 
 router.get(

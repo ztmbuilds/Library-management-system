@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface IReservation extends mongoose.Document {
+export interface IReservation extends mongoose.Document {
   userId: mongoose.Types.ObjectId;
   bookId: mongoose.Types.ObjectId;
   createdAt: Date;

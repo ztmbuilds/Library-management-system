@@ -122,3 +122,25 @@ export const borrowBookValidationRules = [
       return true;
     }),
 ];
+
+export const renewBookValidationRules = [
+  body('newReturnDate')
+    .trim()
+    .notEmpty()
+    .withMessage('newReturnDate is required')
+    .customSanitizer((value: string) => {
+      return dayjs.utc(value, 'YYYY-MM-DD');
+    })
+    .custom((value: Dayjs) => {
+      if (!value.isValid()) {
+        throw new Error('Invalid date format. Use YYYY-MM-DD.');
+      }
+      const today = dayjs.utc().startOf('day');
+
+      console.log(value, today);
+      if (value.isBefore(today)) {
+        throw new Error('return date must not be before today');
+      }
+      return true;
+    }),
+];

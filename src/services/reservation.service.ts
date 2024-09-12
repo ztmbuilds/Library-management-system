@@ -74,4 +74,14 @@ export class ReservationService {
       throw err;
     }
   }
+
+  async getAllReservationsForBook(bookId: string) {
+    try {
+      const reservations = await Reservation.find({ bookId });
+
+      return reservations;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

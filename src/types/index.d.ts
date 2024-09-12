@@ -1,4 +1,5 @@
 import { IUser } from '../models/user.model';
+import { ParsedQs } from 'qs';
 export interface QueryString {
   page?: string;
   sort?: string;

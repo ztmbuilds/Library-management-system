@@ -4,6 +4,7 @@ import {
   borrowBookValidationRules,
   createBookValidationRules,
   editBookValidationRules,
+  renewBookValidationRules,
 } from '../validation/book.validation';
 import validate from '../middlewares/validation-middleware';
 import passport from '../strategies/jwt.passport.strategy';
@@ -28,7 +29,7 @@ router
 router.use(passport.authenticate('jwt', { session: false }));
 router
   .route('/:id')
-
+  .get(bookController.getBook)
   .patch(
     restrictTo([UserRole.ADMIN]),
     validate(editBookValidationRules),
@@ -47,8 +48,20 @@ router.post(
 router.patch(
   '/:id/return',
   restrictTo([UserRole.USER]),
-
   bookController.returnBook
+);
+
+router.patch(
+  '/:id/renew',
+  restrictTo([UserRole.USER]),
+  validate(renewBookValidationRules),
+  bookController.renewBook
+);
+
+router.get(
+  '/:id/borrowing-history',
+  restrictTo([UserRole.ADMIN]),
+  bookController.getBorrowingHistory
 );
 
 export default router;

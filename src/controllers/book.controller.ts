@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import bookService from '../services/book.service';
 import { QueryString } from '../types/';
 import { IUser } from '../models/user.model';
+import { BorrowingService } from '../services/borrowing.service';
 
 class BookController {
   async createBook(req: Request, res: Response, next: NextFunction) {
@@ -19,9 +20,21 @@ class BookController {
 
   async getAllBooks(req: Request, res: Response, next: NextFunction) {
     try {
-      const books = await bookService.getAllBooks(req.query as QueryString);
+      const books = await bookService.getAllBooks(req.query);
       res.status(200).json({
         books,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const book = await bookService.getBook(req.params.id);
+
+      res.status(200).json({
+        book,
       });
     } catch (err) {
       next(err);
@@ -75,6 +88,35 @@ class BookController {
       res.status(200).json({
         message: 'Book returned successfully',
         book,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async renewBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const borrowingRecord = await new BorrowingService(
+        req.user?.id as string
+      ).renewBook(req.params.id, req.body.newReturnDate);
+
+      res.status(200).json({
+        message: 'Book renewed successfully',
+        borrowingRecord,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getBorrowingHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const borrowingHistory = await new BorrowingService('').getAll(
+        req.query,
+        req.params.id
+      );
+      res.status(200).json({
+        borrowingHistory,
       });
     } catch (err) {
       next(err);

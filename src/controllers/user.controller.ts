@@ -27,9 +27,10 @@ class UserController {
 
   async getBorrowingHistory(req: Request, res: Response, next: NextFunction) {
     try {
-      const borrowingHistory = await new BorrowingService(
+      const borrowingHistory = await new BorrowingService('').getAll(
+        req.query,
         req.user?.id as string
-      ).getAll();
+      );
 
       res.status(200).json({
         borrowingHistory,

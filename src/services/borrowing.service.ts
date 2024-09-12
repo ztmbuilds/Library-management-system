@@ -1,6 +1,10 @@
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { AppError } from '../middlewares/error.middleware';
 import Borrowing from '../models/borrowing.model';
+import { ReservationService } from './reservation.service';
+import { IUser } from '../models/user.model';
+import APIFeatures from '../utils/features';
+import { QueryString } from '../types';
 
 export class BorrowingService {
   private userId: string;
@@ -18,11 +22,19 @@ export class BorrowingService {
     }
   }
 
-  async getAll() {
+  async getAll(query: QueryString, id: string) {
     try {
-      const borrowingHistory = await Borrowing.find({
-        userId: this.userId,
-      });
+      const features = new APIFeatures(
+        Borrowing.find({
+          $or: [{ userId: id }, { bookId: id }],
+        }),
+        query
+      )
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate();
+      const borrowingHistory = await features.query;
       return borrowingHistory;
     } catch (err) {
       throw err;
@@ -33,6 +45,7 @@ export class BorrowingService {
       const borrowRecord = await Borrowing.findOne({
         bookId,
         userId: this.userId,
+        returned: false,
       });
       if (borrowRecord)
         throw new AppError('This book has already been borrowed by you', 409);
@@ -60,6 +73,43 @@ export class BorrowingService {
 
       borrowRecord.returned = true;
       await borrowRecord.save();
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async renewBook(bookId: string, newReturnDate: Dayjs) {
+    try {
+      const borrowingRecord = await Borrowing.findOne({
+        bookId,
+        userId: this.userId,
+        returned: false,
+      });
+
+      if (!borrowingRecord)
+        throw new AppError('No borrowing record found', 404);
+
+      if (dayjs(borrowingRecord.returnDate) >= newReturnDate)
+        throw new AppError(
+          'New return date cannot be before or on the same day as the existing return date',
+          422
+        );
+      const reservations = await new ReservationService(
+        {} as IUser
+      ).getAllReservationsForBook(bookId); // {} because i don't want to pass in req.user .
+
+      if (reservations.length !== 0)
+        throw new AppError(
+          'You cannot renew this book because it has existing reservations',
+          409
+        );
+
+      borrowingRecord.returnDate = newReturnDate.toDate();
+      borrowingRecord.renewed = true;
+
+      await borrowingRecord.save();
+
+      return borrowingRecord;
     } catch (err) {
       throw err;
     }
