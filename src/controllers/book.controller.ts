@@ -122,6 +122,36 @@ class BookController {
       next(err);
     }
   }
+
+  async reportDamangedBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { borrowingRecord, newFine } = await new BorrowingService(
+        req.user?.id as string
+      ).reportDamaged(req.params.id, req.body.description);
+
+      res.status(200).json({
+        borrowingRecord,
+        fine: newFine,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async reportLostBook(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { borrowingRecord, newFine } = await new BorrowingService(
+        req.user?.id as string
+      ).reportLost(req.params.id, req.body.description);
+
+      res.status(200).json({
+        borrowingRecord,
+        fine: newFine,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default new BookController();

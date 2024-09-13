@@ -5,6 +5,7 @@ import { ReservationService } from './reservation.service';
 import { IUser } from '../models/user.model';
 import APIFeatures from '../utils/features';
 import { QueryString } from '../types';
+import { FineService } from './fine.service';
 
 export class BorrowingService {
   private userId: string;
@@ -72,6 +73,7 @@ export class BorrowingService {
       if (!borrowRecord) throw new AppError('No borrow record found', 404);
 
       borrowRecord.returned = true;
+      borrowRecord.actualReturnDate = dayjs().toDate();
       await borrowRecord.save();
     } catch (err) {
       throw err;
@@ -110,6 +112,50 @@ export class BorrowingService {
       await borrowingRecord.save();
 
       return borrowingRecord;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async reportLost(bookId: string, description: string) {
+    try {
+      const borrowingRecord = await Borrowing.findOne({
+        bookId,
+        userId: this.userId,
+        returned: false,
+      });
+
+      if (!borrowingRecord)
+        throw new AppError('No borrowing record found', 404);
+
+      const newFine = await FineService.createLostBookFine(
+        borrowingRecord.id,
+        description
+      );
+
+      return { borrowingRecord, newFine };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async reportDamaged(bookId: string, description: string) {
+    try {
+      const borrowingRecord = await Borrowing.findOne({
+        bookId,
+        userId: this.userId,
+        returned: false,
+      });
+
+      if (!borrowingRecord)
+        throw new AppError('No borrowing record found', 404);
+
+      const newFine = await FineService.createDamagedBookFine(
+        borrowingRecord.id,
+        description
+      );
+
+      return { borrowingRecord, newFine };
     } catch (err) {
       throw err;
     }

@@ -144,3 +144,7 @@ export const renewBookValidationRules = [
       return true;
     }),
 ];
+
+export const reportDamagedOrLostValidationRules = [
+  body('description').trim().notEmpty().withMessage('description is required'),
+];
