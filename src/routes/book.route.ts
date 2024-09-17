@@ -4,8 +4,6 @@ import {
   borrowBookValidationRules,
   createBookValidationRules,
   editBookValidationRules,
-  renewBookValidationRules,
-  reportDamagedOrLostValidationRules,
 } from '../validation/book.validation';
 import validate from '../middlewares/validation-middleware';
 import passport from '../strategies/jwt.passport.strategy';
@@ -46,37 +44,10 @@ router.post(
   bookController.borrowBook
 );
 
-router.patch(
-  '/:id/return',
-  restrictTo([UserRole.USER]),
-  bookController.returnBook
-);
-
-router.patch(
-  '/:id/renew',
-  restrictTo([UserRole.USER]),
-  validate(renewBookValidationRules),
-  bookController.renewBook
-);
-
 router.get(
   '/:id/borrowing-history',
   restrictTo([UserRole.ADMIN]),
   bookController.getBorrowingHistory
-);
-
-router.post(
-  '/:id/report-lost',
-  restrictTo([UserRole.USER]),
-  validate(reportDamagedOrLostValidationRules),
-  bookController.reportLostBook
-);
-
-router.post(
-  '/:id/report-damanged',
-  restrictTo([UserRole.USER]),
-  validate(reportDamagedOrLostValidationRules),
-  bookController.reportDamangedBook
 );
 
 export default router;

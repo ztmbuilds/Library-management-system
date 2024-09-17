@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.route';
 import bookRoutes from './routes/book.route';
 import userRoutes from './routes/user.route';
 import reservationRoutes from './routes/reservation.route';
+import borrowingRoutes from './routes/borrowing.route';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/borrowings', borrowingRoutes);
 
 //Handling unhandled routes.
 app.all('*', (req, res, next) => {

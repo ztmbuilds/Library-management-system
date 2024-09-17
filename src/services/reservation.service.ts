@@ -3,6 +3,7 @@ import Reservation from '../models/reservation.model';
 import { IUser } from '../models/user.model';
 import bookService from './book.service';
 import EmailService from './email.service';
+import { Types } from 'mongoose';
 
 export class ReservationService {
   private user: IUser;
@@ -75,7 +76,7 @@ export class ReservationService {
     }
   }
 
-  async getAllReservationsForBook(bookId: string) {
+  async getAllReservationsForBook(bookId: string | Types.ObjectId) {
     try {
       const reservations = await Reservation.find({ bookId });
 

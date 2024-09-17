@@ -1,4 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
+import { Types } from 'mongoose';
 import { AppError } from '../middlewares/error.middleware';
 import Borrowing from '../models/borrowing.model';
 import { ReservationService } from './reservation.service';
@@ -15,7 +16,7 @@ export class BorrowingService {
   async get(id: string) {
     try {
       const borrowRecord = await Borrowing.findById(id);
-      if (!history)
+      if (!borrowRecord)
         throw new AppError('No borrow record with that id found', 404);
       return borrowRecord;
     } catch (err) {
@@ -63,10 +64,10 @@ export class BorrowingService {
     }
   }
 
-  async return(bookId: string) {
+  async return(borrowingId: string) {
     try {
       const borrowRecord = await Borrowing.findOne({
-        bookId,
+        _id: new Types.ObjectId(borrowingId),
         userId: this.userId,
         returned: false,
       });
@@ -75,15 +76,17 @@ export class BorrowingService {
       borrowRecord.returned = true;
       borrowRecord.actualReturnDate = dayjs().toDate();
       await borrowRecord.save();
+
+      return borrowRecord;
     } catch (err) {
       throw err;
     }
   }
 
-  async renewBook(bookId: string, newReturnDate: Dayjs) {
+  async renewBook(borrowingId: string, newReturnDate: Dayjs) {
     try {
       const borrowingRecord = await Borrowing.findOne({
-        bookId,
+        _id: new Types.ObjectId(borrowingId),
         userId: this.userId,
         returned: false,
       });
@@ -98,7 +101,7 @@ export class BorrowingService {
         );
       const reservations = await new ReservationService(
         {} as IUser
-      ).getAllReservationsForBook(bookId); // {} because i don't want to pass in req.user .
+      ).getAllReservationsForBook(borrowingRecord.bookId); // {} because i don't want to pass in req.user .
 
       if (reservations.length !== 0)
         throw new AppError(
@@ -117,10 +120,10 @@ export class BorrowingService {
     }
   }
 
-  async reportLost(bookId: string, description: string) {
+  async reportLost(borrowingId: string, description: string) {
     try {
       const borrowingRecord = await Borrowing.findOne({
-        bookId,
+        _id: new Types.ObjectId(borrowingId),
         userId: this.userId,
         returned: false,
       });
@@ -139,10 +142,10 @@ export class BorrowingService {
     }
   }
 
-  async reportDamaged(bookId: string, description: string) {
+  async reportDamaged(borrowingId: string, description: string) {
     try {
       const borrowingRecord = await Borrowing.findOne({
-        bookId,
+        _id: new Types.ObjectId(borrowingId),
         userId: this.userId,
         returned: false,
       });

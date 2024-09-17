@@ -5,7 +5,7 @@ import { JWT_SECRET } from '../config';
 import passport, { DoneCallback } from 'passport';
 
 if (!JWT_SECRET) throw new Error('JWT_SECRET must be defined');
-console.log('Passport config file loaded'); // Check if this log appears
+
 passport.use(
   new JwtStrategy(
     {
