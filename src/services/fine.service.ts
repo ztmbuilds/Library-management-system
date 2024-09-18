@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { AppError } from '../middlewares/error.middleware';
 import Fine, { IFine } from '../models/Fine.model';
 import Borrowing from '../models/borrowing.model';
+import { IUser } from '../models/user.model';
 
 export class FineService {
   // In Naira
@@ -89,5 +90,13 @@ export class FineService {
     const fines = await Fine.find({ userId });
 
     return fines;
+  }
+
+  static async getFine(fineId: string) {
+    const fine = await Fine.findById(fineId).populate<{ userId: IUser }>(
+      'userId'
+    );
+
+    return fine;
   }
 }

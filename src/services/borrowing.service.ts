@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { Types } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import { AppError } from '../middlewares/error.middleware';
 import Borrowing from '../models/borrowing.model';
 import { ReservationService } from './reservation.service';
@@ -7,6 +7,7 @@ import { IUser } from '../models/user.model';
 import APIFeatures from '../utils/features';
 import { QueryString } from '../types';
 import { FineService } from './fine.service';
+import { IFine } from '../models/Fine.model';
 
 export class BorrowingService {
   private userId: string;
