@@ -26,14 +26,14 @@ router.patch(
   borrowingController.renewBook
 );
 
-router.post(
+router.patch(
   '/:id/report-lost',
   restrictTo([UserRole.USER]),
   validate(reportDamagedOrLostValidationRules),
   borrowingController.reportLostBook
 );
 
-router.post(
+router.patch(
   '/:id/report-damanged',
   restrictTo([UserRole.USER]),
   validate(reportDamagedOrLostValidationRules),

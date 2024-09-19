@@ -8,7 +8,6 @@ interface IBorrowing extends mongoose.Document {
   actualReturnDate: Date;
   returned: boolean;
   renewed: boolean;
-  fines: mongoose.Types.ObjectId[];
 }
 
 const borrowingSchema: mongoose.Schema = new mongoose.Schema({
@@ -43,7 +42,6 @@ const borrowingSchema: mongoose.Schema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  fines: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Fine' }],
 });
 
 export default mongoose.model<IBorrowing>('Borrowing', borrowingSchema);

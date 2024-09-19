@@ -10,3 +10,5 @@ export const MAILER = {
   PASSWORD: process.env.MAILER_PASSWORD,
   PORT: process.env.MAILER_PORT,
 };
+
+export const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY || '';

@@ -4,6 +4,7 @@ import { IUser } from '../models/user.model';
 import bookService from './book.service';
 import EmailService from './email.service';
 import { Types } from 'mongoose';
+import { IBook } from '../models/book.model';
 
 export class ReservationService {
   private user: IUser;
@@ -83,6 +84,47 @@ export class ReservationService {
       return reservations;
     } catch (err) {
       throw err;
+    }
+  }
+
+  static async processNextReservation(bookId: string | Types.ObjectId) {
+    const oldestReservation = await Reservation.findOne({
+      bookId,
+      status: 'pending',
+    })
+      .sort('createdAt')
+      .populate<{ bookId: IBook; userId: IUser }>(['bookId', 'userId']);
+
+    if (!oldestReservation)
+      throw new AppError(
+        'There are no pending reservations for this book',
+        404
+      );
+
+    const { userId: user, bookId: book } = oldestReservation;
+
+    await new EmailService(user).sendReservationRedeemableMail(
+      book.title,
+      book.author
+    );
+
+    oldestReservation.status = 'notified';
+    oldestReservation.expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+    await oldestReservation.save();
+  }
+
+  static async checkAndUpdateReservations() {
+    const expiredReservations = await Reservation.find({
+      status: 'notified',
+      expiresAt: { $lt: new Date() },
+    });
+
+    for (let reservation of expiredReservations) {
+      reservation.status = 'expired';
+
+      reservation.save();
+
+      await this.processNextReservation(reservation.bookId);
     }
   }
 }
