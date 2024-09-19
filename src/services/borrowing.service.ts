@@ -1,5 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
-import { ObjectId, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { AppError } from '../middlewares/error.middleware';
 import Borrowing from '../models/borrowing.model';
 import { ReservationService } from './reservation.service';
@@ -10,8 +10,8 @@ import { FineService } from './fine.service';
 import { IFine } from '../models/Fine.model';
 
 export class BorrowingService {
-  private userId: string;
-  constructor(userId: string) {
+  private userId: string | Types.ObjectId;
+  constructor(userId: string | Types.ObjectId) {
     this.userId = userId;
   }
   async get(id: string) {
