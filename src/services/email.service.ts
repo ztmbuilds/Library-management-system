@@ -62,9 +62,9 @@ export default class EmailService {
     return await this.sendMail(subject, message, this.user.email);
   }
 
-  async sendReservationRedeemableMail(bookTitle: string, bookAuthor: string) {
-    const subject = 'Reservation Redeemable';
-    const message = `Hey ${this.user.username}, \n Your reservation for ${bookTitle} by ${bookAuthor} is now redeemable. Please log in to the library system to redeem it.`;
+  async sendReservationClaimableMail(bookTitle: string, bookAuthor: string) {
+    const subject = 'Reservation Claimable';
+    const message = `Hey ${this.user.username}, \n Your reservation for ${bookTitle} by ${bookAuthor} is now claimable. Please log in to the library system to claim it.`;
 
     return await this.sendMail(subject, message, this.user.email);
   }
