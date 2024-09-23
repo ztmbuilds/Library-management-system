@@ -115,7 +115,6 @@ export const borrowBookValidationRules = [
     .custom((value: Dayjs) => {
       const today = dayjs.utc().startOf('day');
 
-      console.log(value, today);
       if (value.isBefore(today)) {
         throw new Error('return date must not be before today');
       }

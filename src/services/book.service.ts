@@ -6,6 +6,8 @@ import { AppError } from '../middlewares/error.middleware';
 import { BorrowingService } from './borrowing.service';
 import { Dayjs } from 'dayjs';
 import { IUser } from '../models/user.model';
+import { Types } from 'mongoose';
+import { ReservationService } from './reservation.service';
 
 class BookService {
   async createBook(book: IBook) {
@@ -18,7 +20,7 @@ class BookService {
     }
   }
 
-  async getBook(bookId: string) {
+  async getBook(bookId: string | Types.ObjectId) {
     try {
       const book = await Book.findById(bookId);
 
@@ -65,37 +67,19 @@ class BookService {
     }
   }
 
-  // async borrowBook(user: IUser, bookId: string, returnDate: Dayjs) {
-  //   try {
-  //     const book = await Book.findById(bookId);
-  //     if (!book) throw new AppError('No book with that ID found', 404);
-
-  //     if (book.availableCopies === 0)
-  //       throw new AppError('There are no available copies of this book', 409);
-
-  //     const borrowRecord = await new BorrowingService(user.id).borrow(
-  //       bookId,
-  //       returnDate
-  //     );
-  //     book.availableCopies -= 1;
-  //     await book.save();
-
-  //     return borrowRecord;
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
-
   async returnBook(user: IUser, bookId: string) {
     try {
       const book = await Book.findById(bookId);
       if (!book) throw new AppError('No book with that ID found', 404);
 
-      await new BorrowingService(user.id).return(bookId);
+      const borrowRecord = await new BorrowingService(user.id).returnBook(
+        bookId
+      );
 
       book.availableCopies += 1;
       await book.save();
-      return book;
+
+      return { borrowRecord, book };
     } catch (err) {
       throw err;
     }

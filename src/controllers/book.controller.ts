@@ -67,7 +67,7 @@ class BookController {
     try {
       const borrowRecord = await new BorrowingService(
         req.user?.id as string
-      ).borrow(req.params.id, req.body.returnDate);
+      ).borrowBook(req.params.id, req.body.returnDate);
 
       res.status(200).json({
         borrowRecord,
@@ -79,7 +79,7 @@ class BookController {
 
   async getBorrowingHistory(req: Request, res: Response, next: NextFunction) {
     try {
-      const borrowingHistory = await new BorrowingService('').getAll(
+      const borrowingHistory = await BorrowingService.getAll(
         req.query,
         req.params.id
       );

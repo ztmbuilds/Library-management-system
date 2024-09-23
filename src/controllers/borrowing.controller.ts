@@ -7,7 +7,7 @@ class BorrowingController {
     try {
       const borrowRecord = await new BorrowingService(
         req.user?.id as string
-      ).return(req.params.id);
+      ).returnBook(req.params.id);
       res.status(200).json({
         borrowRecord,
       });
@@ -20,7 +20,7 @@ class BorrowingController {
     try {
       const borrowingRecord = await new BorrowingService(
         req.user?.id as string
-      ).renewBook(req.params.id, req.body.newReturnDate);
+      ).renewBook(req.params.id, req.body.newReturnDate, req.query);
 
       res.status(200).json({
         message: 'Book renewed successfully',
