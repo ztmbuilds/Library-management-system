@@ -9,6 +9,7 @@ import { QueryString } from '../types';
 import { FineService } from './fine.service';
 import { IFine } from '../models/Fine.model';
 import BookService from './book.service';
+import { IBook } from '../models/book.model';
 
 export class BorrowingService {
   private userId: string | Types.ObjectId;
@@ -26,7 +27,7 @@ export class BorrowingService {
     }
   }
 
-  async getAll(query: QueryString, id: string) {
+  static async getAll(query: QueryString, id: string) {
     try {
       const features = new APIFeatures(
         Borrowing.find({
@@ -44,7 +45,11 @@ export class BorrowingService {
       throw err;
     }
   }
-  async borrow(bookId: string, returnDate: Dayjs) {
+  async borrowBook(
+    bookId: string | Types.ObjectId,
+    returnDate: Dayjs,
+    isReservationClaim = false
+  ) {
     try {
       const borrowRecord = await Borrowing.findOne({
         bookId,
@@ -58,6 +63,22 @@ export class BorrowingService {
 
       if (book.availableCopies === 0)
         throw new AppError('There are no available copies of this book', 409);
+
+      if (!isReservationClaim) {
+        const reservations = await ReservationService.getAllReservationsForBook(
+          bookId
+        );
+
+        const activeReservations = reservations.find(
+          (el) => el.status === 'notified' || el.status === 'pending'
+        );
+
+        if (activeReservations)
+          throw new AppError(
+            'Unable to borrow this book due to existing active reservations.',
+            409
+          );
+      }
 
       const newBorrowRecord = await Borrowing.create({
         userId: this.userId,
@@ -74,18 +95,25 @@ export class BorrowingService {
     }
   }
 
-  async return(borrowingId: string) {
+  async returnBook(borrowingId: string) {
     try {
       const borrowRecord = await Borrowing.findOne({
         _id: new Types.ObjectId(borrowingId),
         userId: this.userId,
         returned: false,
-      });
+      }).populate<{ bookId: IBook }>('bookId');
       if (!borrowRecord) throw new AppError('No borrow record found', 404);
 
       borrowRecord.returned = true;
       borrowRecord.actualReturnDate = dayjs().toDate();
+
+      const { bookId: book } = borrowRecord;
+      book.availableCopies += 1;
+
+      await book.save();
       await borrowRecord.save();
+
+      await ReservationService.processNextReservation(book.id);
 
       return borrowRecord;
     } catch (err) {
@@ -93,7 +121,11 @@ export class BorrowingService {
     }
   }
 
-  async renewBook(borrowingId: string, newReturnDate: Dayjs) {
+  async renewBook(
+    borrowingId: string,
+    newReturnDate: Dayjs,
+    query: QueryString
+  ) {
     try {
       const borrowingRecord = await Borrowing.findOne({
         _id: new Types.ObjectId(borrowingId),
@@ -109,9 +141,10 @@ export class BorrowingService {
           'New return date cannot be before or on the same day as the existing return date',
           422
         );
-      const reservations = await new ReservationService(
-        {} as IUser
-      ).getAllReservationsForBook(borrowingRecord.bookId); // {} because i don't want to pass in req.user .
+      const reservations = await ReservationService.getAllReservationsForBook(
+        borrowingRecord.bookId,
+        query
+      );
 
       if (reservations.length !== 0)
         throw new AppError(

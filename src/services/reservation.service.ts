@@ -1,10 +1,14 @@
 import { AppError } from '../middlewares/error.middleware';
-import Reservation from '../models/reservation.model';
+import Reservation, { IReservation } from '../models/reservation.model';
 import { IUser } from '../models/user.model';
-import bookService from './book.service';
+import BookService from './book.service';
 import EmailService from './email.service';
 import { Types } from 'mongoose';
 import { IBook } from '../models/book.model';
+import APIFeatures from '../utils/features';
+import { QueryString } from '../types';
+import { BorrowingService } from './borrowing.service';
+import { Dayjs } from 'dayjs';
 
 export class ReservationService {
   private user: IUser;
@@ -13,7 +17,7 @@ export class ReservationService {
   }
   async create(bookId: string) {
     try {
-      const book = await bookService.getBook(bookId);
+      const book = await BookService.getBook(bookId);
 
       if (!book) {
         throw new AppError('No book with that Id found', 404);
@@ -60,7 +64,7 @@ export class ReservationService {
         throw new AppError('No reservation with that Id found', 404);
       }
 
-      const book = await bookService.getBook(reservation.bookId.toString());
+      const book = await BookService.getBook(reservation.bookId.toString());
 
       if (!book) {
         throw new AppError('Book no longer exists', 404);
@@ -77,9 +81,22 @@ export class ReservationService {
     }
   }
 
-  async getAllReservationsForBook(bookId: string | Types.ObjectId) {
+  static async getAllReservationsForBook(
+    bookId: string | Types.ObjectId,
+    query?: QueryString
+  ) {
     try {
-      const reservations = await Reservation.find({ bookId });
+      let reservations: IReservation[];
+      if (query) {
+        const features = new APIFeatures(Reservation.find({ bookId }), query)
+          .filter()
+          .sort()
+          .limitFields()
+          .paginate();
+        reservations = await features.query;
+      }
+
+      reservations = await Reservation.find({ bookId });
 
       return reservations;
     } catch (err) {
@@ -95,15 +112,11 @@ export class ReservationService {
       .sort('createdAt')
       .populate<{ bookId: IBook; userId: IUser }>(['bookId', 'userId']);
 
-    if (!oldestReservation)
-      throw new AppError(
-        'There are no pending reservations for this book',
-        404
-      );
+    if (!oldestReservation) return;
 
     const { userId: user, bookId: book } = oldestReservation;
 
-    await new EmailService(user).sendReservationRedeemableMail(
+    await new EmailService(user).sendReservationClaimableMail(
       book.title,
       book.author
     );
@@ -126,5 +139,58 @@ export class ReservationService {
 
       await this.processNextReservation(reservation.bookId);
     }
+  }
+
+  async getUserReservations(query: QueryString) {
+    try {
+      const features = new APIFeatures(
+        Reservation.find({ userId: this.user.id }),
+        query
+      )
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate();
+      const reservations = await features.query;
+
+      return reservations;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async claimReservation(reservationId: string, returnDate: Dayjs) {
+    const reservation = await Reservation.findById(reservationId);
+
+    if (!reservation)
+      throw new AppError('No reservation with this id found', 404);
+
+    if (reservation.status === 'expired')
+      throw new AppError(
+        'This resevation has expired and cannot be claimed',
+        409
+      );
+    if (reservation.status === 'claimed') {
+      throw new AppError('This reservation has already been claimed', 409);
+    }
+
+    if (reservation.status !== 'notified') {
+      throw new AppError(
+        'This reservation has not been notified and cannot be claimed',
+        409
+      );
+    }
+
+    const borrowRecord = await new BorrowingService(this.user.id).borrowBook(
+      reservation.bookId,
+      returnDate,
+      true
+    );
+
+    reservation.status = 'claimed';
+
+    await reservation.save();
+
+    return borrowRecord;
   }
 }

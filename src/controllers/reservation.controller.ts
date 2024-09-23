@@ -19,11 +19,24 @@ class ReservationController {
 
   async deleteReservation(req: Request, res: Response, next: NextFunction) {
     try {
-      await new ReservationService(req.user as IUser).delete(
-        req.params.reservationId
-      );
+      await new ReservationService(req.user as IUser).delete(req.params.id);
 
       res.sendStatus(204);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async claimReservation(req: Request, res: Response, next: NextFunction) {
+    try {
+      const borrowRecord = await new ReservationService(
+        req.user as IUser
+      ).claimReservation(req.params.id, req.body.returnDate);
+
+      res.status(200).json({
+        message: 'reservation claimed and book borrowed successfully',
+        borrowRecord,
+      });
     } catch (err) {
       next(err);
     }
