@@ -65,11 +65,10 @@ class BookController {
 
   async borrowBook(req: Request, res: Response, next: NextFunction) {
     try {
-      const borrowRecord = await BookService.borrowBook(
-        req.user as IUser,
-        req.params.id,
-        req.body.returnDate
-      );
+      const borrowRecord = await new BorrowingService(
+        req.user?.id as string
+      ).borrow(req.params.id, req.body.returnDate);
+
       res.status(200).json({
         borrowRecord,
       });

@@ -8,6 +8,7 @@ import APIFeatures from '../utils/features';
 import { QueryString } from '../types';
 import { FineService } from './fine.service';
 import { IFine } from '../models/Fine.model';
+import BookService from './book.service';
 
 export class BorrowingService {
   private userId: string | Types.ObjectId;
@@ -53,11 +54,19 @@ export class BorrowingService {
       if (borrowRecord)
         throw new AppError('This book has already been borrowed by you', 409);
 
+      const book = await BookService.getBook(bookId);
+
+      if (book.availableCopies === 0)
+        throw new AppError('There are no available copies of this book', 409);
+
       const newBorrowRecord = await Borrowing.create({
         userId: this.userId,
         bookId,
         returnDate,
       });
+
+      book.availableCopies -= 1;
+      await book.save();
 
       return newBorrowRecord;
     } catch (err) {
