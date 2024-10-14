@@ -1,0 +1,45 @@
+books:
+  post:
+    summary: Create book
+    tags:
+      - Books
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/book.schemas.yaml#/Create-Book'
+    responses:
+      200:
+        description: success
+
+  get:
+    summary: Get all books
+    tags:
+      - Books
+    parameters:
+      $ref: '../components/parameters.yaml#'
+    responses:
+      200:
+        description: success
+
+books{bookId}:
+  patch:
+    summary: Edit book
+    tags:
+      - Books
+    parameters:
+      - name: bookId
+        in: path
+        required: true
+        description: Book ID
+        schema:
+          type: string
+
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/book.schemas.yaml#/Edit-Book'
+    responses:
+      200:
+        description: success

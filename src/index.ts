@@ -14,6 +14,9 @@ process.on('uncaughtException', (err) => {
 const start = async () => {
   app.listen(PORT, async () => {
     console.log(`:::> 🚀 Server ready at http://localhost:${PORT}`);
+    console.log(
+      `:::> 🚀 View swagger documentation at http://localhost:${PORT}/api/docs`
+    );
   });
   //cron jobs
   await setupCronJobs();

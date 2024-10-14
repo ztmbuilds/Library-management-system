@@ -1,0 +1,79 @@
+signup:
+  post:
+    summary: User signup
+    tags:
+      - Auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.schemas.yaml#/Signup'
+    responses:
+      200:
+        description: success
+
+request-email-verification:
+  post:
+    summary: Request email verification
+    tags:
+      - Auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.schemas.yaml#/Request-Email-Verification'
+    responses:
+      200:
+        description: success
+
+verify-email:
+  post:
+    summary: Verify email
+    tags:
+      - Auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.schemas.yaml#/Verify-Email'
+    responses:
+      200:
+        description: success
+
+login:
+  post:
+    summary: User login
+    tags:
+      - Auth
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/auth.schemas.yaml#/Login'
+    responses:
+      200:
+        description: success
+        headers:
+          Set-Cookie:
+            description: Set refresh token cookie
+            schema:
+              type: string
+              example: refreshToken=123456
+
+refresh-access-token:
+  get:
+    security:
+      - bearerAuth: []
+    summary: Refresh access token
+    parameters:
+      - in: cookie
+        name: refreshToken
+        schema:
+          type: string
+        required: true
+
+    tags:
+      - Auth
+    responses:
+      200:
+        description: success

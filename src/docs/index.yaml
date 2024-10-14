@@ -1,0 +1,36 @@
+openapi: 3.0.1
+info:
+  title: Library Management API
+  description: API documentation for the library management system
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Auth
+  - name: Books
+
+paths:
+  #Auth paths
+  /auth/signup:
+    $ref: './paths/auth.paths.yaml#/signup'
+  /auth/request-email-verification:
+    $ref: './paths/auth.paths.yaml#/request-email-verification'
+  /auth/verify-email:
+    $ref: './paths/auth.paths.yaml#/verify-email'
+  /auth/login:
+    $ref: './paths/auth.paths.yaml#/login'
+  /auth/refresh-access-token:
+    $ref: './paths/auth.paths.yaml#/refresh-access-token'
+
+  #Book paths
+  /books:
+    $ref: './paths/book.paths.yaml#/books'
+  /books/{bookId}:
+    $ref: './paths/book.paths.yaml#/books{bookId}'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

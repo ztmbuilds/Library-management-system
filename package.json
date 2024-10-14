@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle-swagger": "redocly bundle ./src/docs/index.yaml -o ./src/docs/bundled_doc.yaml",
     "start:dev": "nodemon src/index.ts",
     "build": "tsc --build"
   },
@@ -25,13 +26,16 @@
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^6.4.15",
     "@types/passport-jwt": "^4.0.1",
+    "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^10.0.0",
+    "@types/yamljs": "^0.2.34",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@redocly/cli": "^1.25.6",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
@@ -48,6 +52,8 @@
     "nodemailer": "^6.9.14",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "paystack-sdk": "^2.5.17"
+    "paystack-sdk": "^2.5.17",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   }
 }

@@ -1,9 +1,13 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import passport from './strategies/jwt.passport.strategy';
 import { errorHandler, AppError } from './middlewares/error.middleware';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
+import fs from 'fs';
 
 import authRoutes from './routes/auth.route';
 import bookRoutes from './routes/book.route';
@@ -28,6 +32,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/borrowings', borrowingRoutes);
 app.use('/api/fines', fineRouter);
+
+const swagDoc = YAML.load(path.join(__dirname, './docs/bundled_doc.yaml'));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swagDoc));
 
 //Handling unhandled routes.
 app.all('*', (req, res, next) => {

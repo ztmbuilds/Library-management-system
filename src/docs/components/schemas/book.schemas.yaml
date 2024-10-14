@@ -1,0 +1,37 @@
+Create-Book:
+  type: object
+  properties:
+    title:
+      type: string
+    author:
+      type: string
+    genre:
+      type: string
+    description:
+      type: string
+    totalCopies:
+      type: string
+    availableCopies:
+      type: string
+  required:
+    - title
+    - author
+    - genre
+    - totalCopies
+    - availableCopies
+
+Edit-Book:
+  type: object
+  properties:
+    title:
+      type: string
+    author:
+      type: string
+    genre:
+      type: string
+    description:
+      type: string
+    totalCopies:
+      type: string
+    availableCopies:
+      type: string
