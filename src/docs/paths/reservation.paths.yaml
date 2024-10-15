@@ -1,0 +1,46 @@
+reservations{reservationId}:
+  delete:
+    summary: Delete reservation
+    tags:
+      - Reservations
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: reservationId
+        in: path
+        required: true
+        description: Reservation ID
+        schema:
+          type: string
+    responses:
+      200:
+        description: success
+
+reservations{reservationId}claim:
+  patch:
+    summary: Claim reservation
+    tags:
+      - Reservations
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: reservationId
+        in: path
+        required: true
+        description: Reservation ID
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              returnDate:
+                type: string
+                format: date
+            required:
+              - returnDate
+    responses:
+      200:
+        description: success

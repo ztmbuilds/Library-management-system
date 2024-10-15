@@ -6,10 +6,6 @@ info:
 servers:
   - url: http://localhost:3000/api
 
-tags:
-  - name: Auth
-  - name: Books
-
 paths:
   #Auth paths
   /auth/signup:
@@ -28,6 +24,26 @@ paths:
     $ref: './paths/book.paths.yaml#/books'
   /books/{bookId}:
     $ref: './paths/book.paths.yaml#/books{bookId}'
+  /books/{bookId}/borrow:
+    $ref: './paths/book.paths.yaml#/books{bookId}borrow'
+  /books/{bookId}/borrowing-history:
+    $ref: './paths/book.paths.yaml#/books{bookId}borrowing-history'
+  /books/{bookId}/reservations:
+    $ref: './paths/book.paths.yaml#/books{bookId}reservations'
+
+  #User paths
+  /users:
+    $ref: './paths/user.paths.yaml#/users-profile'
+  /users/borrowing-history:
+    $ref: './paths/user.paths.yaml#/users-borrowing-history'
+  /users/reservations:
+    $ref: './paths/user.paths.yaml#/users-reservations'
+
+  #Reservation paths
+  /reservations/{reservationId}:
+    $ref: './paths/reservation.paths.yaml#/reservations{reservationId}'
+  /reservations/{reservationId}/claim:
+    $ref: './paths/reservation.paths.yaml#/reservations{reservationId}claim'
 
 components:
   securitySchemes:

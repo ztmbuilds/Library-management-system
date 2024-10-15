@@ -1,0 +1,105 @@
+users-profile:
+  get:
+    summary: Get user profile
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: success
+
+  patch:
+    summary: Edit user profile
+    tags:
+      - Users
+    security:
+      - bearerAuth: []
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../components/schemas/user.schemas.yaml#/Edit-User-Profile'
+    responses:
+      200:
+        description: success
+
+users-borrowing-history:
+  get:
+    summary: Get user borrowing history
+    tags:
+      - Users
+    parameters:
+      - name: sort
+        in: query
+        description: Sort results by one or more fields. Use `-` for descending order.
+        schema:
+          type: string
+
+      - name: fields
+        in: query
+        description: Specify the fields to include or exclude. Use `-` to exclude fields.
+        schema:
+          type: string
+
+      - name: page
+        in: query
+        description: The page number of the results to retrieve.
+        schema:
+          type: integer
+          default: 1
+        example: 2
+
+      - name: limit
+        in: query
+        description: Limit the number of results returned per page.
+        schema:
+          type: integer
+          default: 10
+        example: 10
+
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: success
+
+users-reservations:
+  get:
+    summary: Get user reservations
+    tags:
+      - Users
+    parameters:
+      - name: sort
+        in: query
+        description: Sort results by one or more fields. Use `-` for descending order.
+        schema:
+          type: string
+
+      - name: fields
+        in: query
+        description: Specify the fields to include or exclude. Use `-` to exclude fields.
+        schema:
+          type: string
+
+      - name: page
+        in: query
+        description: The page number of the results to retrieve.
+        schema:
+          type: integer
+          default: 1
+        example: 2
+
+      - name: limit
+        in: query
+        description: Limit the number of results returned per page.
+        schema:
+          type: integer
+          default: 10
+        example: 10
+
+    security:
+      - bearerAuth: []
+    responses:
+      200:
+        description: success
