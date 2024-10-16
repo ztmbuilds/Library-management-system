@@ -35,12 +35,10 @@ class PaymentService {
     }
   }
 
-  async verifyPayment(reference: string) {
+  async verifyPayment(event: any) {
     try {
-      const response = await this.paystack.transaction.verify(reference);
-
-      const status =
-        response.data?.status === 'success' ? 'completed' : 'failed';
+      const reference = event.data?.offline_reference;
+      const status = event.data?.status === 'success' ? 'completed' : 'failed';
 
       const payment = await Payment.findOne({
         transaction_refrence: reference,
@@ -55,7 +53,6 @@ class PaymentService {
       payment.status = status;
 
       await payment.save();
-      return payment;
     } catch (err) {
       throw err;
     }

@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import PaymentService from '../services/payment.service';
+import crypto from 'crypto';
+import { PAYSTACK_SECRET_KEY } from '../config';
 
 class FineController {
   async initiateFinePayment(req: Request, res: Response, next: NextFunction) {
@@ -16,11 +18,16 @@ class FineController {
 
   async verifyFinePayment(req: Request, res: Response, next: NextFunction) {
     try {
-      const payment = await PaymentService.verifyPayment(req.params.reference);
+      const hash = crypto
+        .createHmac('sha512', PAYSTACK_SECRET_KEY)
+        .update(JSON.stringify(req.body))
+        .digest('hex');
 
-      res.status(200).json({
-        payment,
-      });
+      if (hash == req.headers['x-paystack-signature']) {
+        await PaymentService.verifyPayment(req.body);
+      }
+
+      res.send(200);
     } catch (err) {
       next(err);
     }
