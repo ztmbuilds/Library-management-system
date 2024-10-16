@@ -51,7 +51,7 @@ books:
       200:
         description: success
 
-books{bookId}:
+books{id}:
   get:
     summary: Get book by ID
     tags:
@@ -59,7 +59,7 @@ books{bookId}:
     security:
       - bearerAuth: []
     parameters:
-      - name: bookId
+      - name: id
         in: path
         required: true
         description: Book ID
@@ -76,7 +76,7 @@ books{bookId}:
     security:
       - bearerAuth: []
     parameters:
-      - name: bookId
+      - name: id
         in: path
         required: true
         description: Book ID
@@ -99,7 +99,7 @@ books{bookId}:
     security:
       - bearerAuth: []
     parameters:
-      - name: bookId
+      - name: id
         in: path
         required: true
         description: Book ID
@@ -109,7 +109,7 @@ books{bookId}:
       200:
         description: success
 
-books{bookId}borrow:
+books{id}borrow:
   post:
     summary: Borrow book
     tags:
@@ -117,7 +117,7 @@ books{bookId}borrow:
     security:
       - bearerAuth: []
     parameters:
-      - name: bookId
+      - name: id
         in: path
         required: true
         description: Book ID
@@ -138,7 +138,7 @@ books{bookId}borrow:
       200:
         description: success
 
-books{bookId}borrowing-history:
+books{id}borrowing-history:
   get:
     summary: Get borrowing history of a book
     tags:
@@ -147,7 +147,7 @@ books{bookId}borrowing-history:
     security:
       - bearerAuth: []
     parameters:
-      - name: bookId
+      - name: id
         in: path
         required: true
         description: Book ID
@@ -185,7 +185,7 @@ books{bookId}borrowing-history:
       200:
         description: success
 
-books{bookId}reservations:
+books{id}reservations:
   post:
     summary: Reserve book
     tags:
@@ -193,7 +193,7 @@ books{bookId}reservations:
     security:
       - bearerAuth: []
     parameters:
-      - name: bookId
+      - name: id
         in: path
         required: true
         description: Book ID

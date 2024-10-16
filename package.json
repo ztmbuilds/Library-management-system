@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle-swagger": "redocly bundle ./src/docs/index.yaml -o ./src/docs/bundled_doc.yaml",
     "start:dev": "nodemon src/index.ts",
-    "build": "tsc --build"
+    "build": "tsc --build && redocly bundle ./src/docs/index.yaml -o ./dist/docs/bundled_doc.yaml && node dist/index.js",
+    "start:prod": " node dist/index.js"
   },
   "keywords": [
     "typescript",

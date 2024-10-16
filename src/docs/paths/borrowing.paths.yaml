@@ -1,0 +1,101 @@
+renew-book:
+  patch:
+    summary: Renew book
+    tags:
+      - Borrowings
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Borrowing ID
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              newReturnDate:
+                type: string
+                format: 'YYYY-MM-DD'
+                example: '2024-09-19'
+            required:
+              - newReturnDate
+    responses:
+      200:
+        description: success
+
+return-book:
+  patch:
+    summary: Return book
+    tags:
+      - Borrowings
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Borrowing ID
+        schema:
+          type: string
+    responses:
+      200:
+        description: success
+
+report-lost:
+  patch:
+    summary: Report lost book
+    tags:
+      - Borrowings
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Borrowing ID
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              description:
+                type: string
+                example: 'Lost the book'
+    responses:
+      200:
+        description: success
+
+report-damaged:
+  patch:
+    summary: Report damaged book
+    tags:
+      - Borrowings
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Borrowing ID
+        schema:
+          type: string
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              description:
+                type: string
+                example: 'Damaged the book'
+    responses:
+      200:
+        description: success

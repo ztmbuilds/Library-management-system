@@ -22,14 +22,14 @@ paths:
   #Book paths
   /books:
     $ref: './paths/book.paths.yaml#/books'
-  /books/{bookId}:
-    $ref: './paths/book.paths.yaml#/books{bookId}'
-  /books/{bookId}/borrow:
-    $ref: './paths/book.paths.yaml#/books{bookId}borrow'
-  /books/{bookId}/borrowing-history:
-    $ref: './paths/book.paths.yaml#/books{bookId}borrowing-history'
-  /books/{bookId}/reservations:
-    $ref: './paths/book.paths.yaml#/books{bookId}reservations'
+  /books/{id}:
+    $ref: './paths/book.paths.yaml#/books{id}'
+  /books/{id}/borrow:
+    $ref: './paths/book.paths.yaml#/books{id}borrow'
+  /books/{id}/borrowing-history:
+    $ref: './paths/book.paths.yaml#/books{id}borrowing-history'
+  /books/{id}/reservations:
+    $ref: './paths/book.paths.yaml#/books{id}reservations'
 
   #User paths
   /users:
@@ -38,12 +38,30 @@ paths:
     $ref: './paths/user.paths.yaml#/users-borrowing-history'
   /users/reservations:
     $ref: './paths/user.paths.yaml#/users-reservations'
+  /users/fines:
+    $ref: './paths/user.paths.yaml#/users-fines'
 
   #Reservation paths
-  /reservations/{reservationId}:
-    $ref: './paths/reservation.paths.yaml#/reservations{reservationId}'
-  /reservations/{reservationId}/claim:
-    $ref: './paths/reservation.paths.yaml#/reservations{reservationId}claim'
+  /reservations/{id}:
+    $ref: './paths/reservation.paths.yaml#/reservations{id}'
+  /reservations/{id}/claim:
+    $ref: './paths/reservation.paths.yaml#/reservations{id}claim'
+
+  #Borrowing paths
+  /borrowings/{id}/renew:
+    $ref: './paths/borrowing.paths.yaml#/renew-book'
+  /borrowings/{id}/return:
+    $ref: './paths/borrowing.paths.yaml#/return-book'
+  /borrowings/{id}/report-lost:
+    $ref: './paths/borrowing.paths.yaml#/report-lost'
+  /borrowings/{id}/report-damaged:
+    $ref: './paths/borrowing.paths.yaml#/report-damaged'
+
+  #Fine paths
+  /fines/{id}/initiate-payment:
+    $ref: './paths/fine.paths.yaml#/initiate-payment'
+  /fines/{id}:
+    $ref: './paths/fine.paths.yaml#/get-fine'
 
 components:
   securitySchemes:

@@ -1,0 +1,12 @@
+{
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.(yaml)$",
+        "cmd": " npx redocly bundle ./src/docs/index.yaml -o ./src/docs/bundled_doc.yaml",
+        "message": "Start bundling",
+        "messageAfter": "Bundling complete"
+      }
+    ]
+  }
+}

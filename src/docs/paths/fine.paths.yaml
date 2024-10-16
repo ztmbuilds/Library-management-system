@@ -1,0 +1,35 @@
+initiate-payment:
+  post:
+    tags:
+      - Fines
+    summary: Initiate payment for fine
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Fine ID
+        schema:
+          type: string
+    responses:
+      200:
+        description: success
+
+get-fine:
+  get:
+    tags:
+      - Fines
+    summary: Get fine details
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Fine ID
+        schema:
+          type: string
+    responses:
+      200:
+        description: success

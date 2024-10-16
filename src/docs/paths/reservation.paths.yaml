@@ -1,12 +1,12 @@
-reservations{reservationId}:
+reservations{id}:
   delete:
-    summary: Delete reservation
+    summary: Cancel reservation
     tags:
       - Reservations
     security:
       - bearerAuth: []
     parameters:
-      - name: reservationId
+      - name: id
         in: path
         required: true
         description: Reservation ID
@@ -16,7 +16,7 @@ reservations{reservationId}:
       200:
         description: success
 
-reservations{reservationId}claim:
+reservations{id}claim:
   patch:
     summary: Claim reservation
     tags:
@@ -24,7 +24,7 @@ reservations{reservationId}claim:
     security:
       - bearerAuth: []
     parameters:
-      - name: reservationId
+      - name: id
         in: path
         required: true
         description: Reservation ID
