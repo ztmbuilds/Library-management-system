@@ -5,6 +5,7 @@ info:
   version: 1.0.0
 servers:
   - url: http://localhost:3000/api
+  - url: https://library-management-system-s1x4.onrender.com/api
 
 paths:
   #Auth paths
