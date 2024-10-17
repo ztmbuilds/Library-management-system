@@ -33,6 +33,7 @@ const paymentSchema = new Schema<IPayment>(
     },
     transaction_refrence: {
       type: String,
+      required: true,
     },
   },
   { timestamps: true }

@@ -54,10 +54,10 @@ export default class EmailService {
     return await this.sendMail(subject, message, this.user.email);
   }
 
-  async sendReservationDeletedMail(bookTitle: string, bookAuthor: string) {
-    const subject = 'Reservation Deleted Successfully';
+  async sendReservationCancelMail(bookTitle: string, bookAuthor: string) {
+    const subject = 'Reservation Canceled Successfully';
 
-    const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been deleted successfully`;
+    const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been canceled successfully`;
 
     return await this.sendMail(subject, message, this.user.email);
   }

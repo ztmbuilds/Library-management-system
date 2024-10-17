@@ -9,6 +9,7 @@ class BorrowingController {
         req.user?.id as string
       ).returnBook(req.params.id);
       res.status(200).json({
+        message: 'Book returned successfully',
         borrowRecord,
       });
     } catch (err) {

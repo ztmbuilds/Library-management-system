@@ -86,7 +86,7 @@ export class FineService {
     );
   }
 
-  async getAllFines(userId: string) {
+  static async getAllUserFines(userId: string) {
     const fines = await Fine.find({ userId });
 
     return fines;

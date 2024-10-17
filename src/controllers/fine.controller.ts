@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import PaymentService from '../services/payment.service';
 import crypto from 'crypto';
 import { PAYSTACK_SECRET_KEY } from '../config';
+import { FineService } from '../services/fine.service';
 
 class FineController {
   async initiateFinePayment(req: Request, res: Response, next: NextFunction) {
@@ -28,6 +29,18 @@ class FineController {
       }
 
       res.send(200);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getFine(req: Request, res: Response, next: NextFunction) {
+    try {
+      const fine = await FineService.getFine(req.params.id);
+
+      res.status(200).json({
+        fine,
+      });
     } catch (err) {
       next(err);
     }

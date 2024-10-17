@@ -136,11 +136,11 @@ export class BorrowingService {
       if (!borrowingRecord)
         throw new AppError('No borrowing record found', 404);
 
-      if (dayjs(borrowingRecord.returnDate) >= newReturnDate)
-        throw new AppError(
-          'New return date cannot be before or on the same day as the existing return date',
-          422
-        );
+      // if (dayjs(borrowingRecord.returnDate) >= newReturnDate)
+      //   throw new AppError(
+      //     'New return date cannot be before or on the same day as the existing return date',
+      //     422
+      //   );
       const reservations = await ReservationService.getAllReservationsForBook(
         borrowingRecord.bookId,
         query

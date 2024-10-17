@@ -14,12 +14,18 @@ router
 
 router
   .route('/:id')
-  .delete(restrictTo([UserRole.USER]), reservationController.deleteReservation);
+  .delete(restrictTo([UserRole.USER]), reservationController.cancelReservation);
 
 router.patch(
   '/:id/claim',
   restrictTo([UserRole.USER]),
   validate(borrowBookValidationRules),
   reservationController.claimReservation
+);
+
+router.patch(
+  '/:id/cancel',
+  restrictTo([UserRole.USER]),
+  reservationController.cancelReservation
 );
 export default router;

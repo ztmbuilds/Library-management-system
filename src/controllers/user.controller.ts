@@ -3,6 +3,7 @@ import userService from '../services/user.service';
 import { BorrowingService } from '../services/borrowing.service';
 import { ReservationService } from '../services/reservation.service';
 import { IUser } from '../models/user.model';
+import { FineService } from '../services/fine.service';
 
 class UserController {
   async updateProfile(req: Request, res: Response, next: NextFunction) {
@@ -50,6 +51,17 @@ class UserController {
 
       res.status(200).json({
         reservations,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async getFines(req: Request, res: Response, next: NextFunction) {
+    try {
+      const fines = await FineService.getAllUserFines(req.user?.id as string);
+      res.status(200).json({
+        fines,
       });
     } catch (err) {
       next(err);

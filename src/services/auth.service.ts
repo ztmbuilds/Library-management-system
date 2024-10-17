@@ -107,17 +107,10 @@ class AuthService {
       });
       if (!user) {
         console.log(user);
-        throw new AppError(
-          'Invalid Email or Password',
-          httpStatus.UNAUTHORIZED
-        );
+        throw new AppError('Invalid credentials', 401);
       }
       const isCorrect = await compare(password, user.password);
-      if (!isCorrect)
-        throw new AppError(
-          'Invalid Email or Password',
-          httpStatus.UNAUTHORIZED
-        );
+      if (!isCorrect) throw new AppError('Invalid credentials', 401);
 
       console.log(user.id);
       const { accessToken, refreshToken } = await this.generateAuthTokens(

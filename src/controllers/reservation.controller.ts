@@ -17,9 +17,11 @@ class ReservationController {
     }
   }
 
-  async deleteReservation(req: Request, res: Response, next: NextFunction) {
+  async cancelReservation(req: Request, res: Response, next: NextFunction) {
     try {
-      await new ReservationService(req.user as IUser).delete(req.params.id);
+      await new ReservationService(req.user as IUser).cancelReservation(
+        req.params.id
+      );
 
       res.sendStatus(204);
     } catch (err) {

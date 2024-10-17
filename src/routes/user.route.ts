@@ -26,4 +26,6 @@ router.get(
   userController.getReservations
 );
 
+router.get('/fines', restrictTo([UserRole.USER]), userController.getFines);
+
 export default router;

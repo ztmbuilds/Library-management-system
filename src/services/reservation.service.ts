@@ -56,9 +56,12 @@ export class ReservationService {
     }
   }
 
-  async delete(reservationId: string) {
+  async cancelReservation(reservationId: string) {
     try {
-      const reservation = await Reservation.findById(reservationId);
+      const reservation = await Reservation.findOne({
+        reservationId,
+        userId: this.user.id,
+      });
 
       if (!reservation) {
         throw new AppError('No reservation with that Id found', 404);
@@ -72,7 +75,7 @@ export class ReservationService {
 
       await reservation.deleteOne();
 
-      await new EmailService(this.user).sendReservationDeletedMail(
+      await new EmailService(this.user).sendReservationCancelMail(
         book.title,
         book.author
       );
@@ -167,7 +170,7 @@ export class ReservationService {
 
     if (reservation.status === 'expired')
       throw new AppError(
-        'This resevation has expired and cannot be claimed',
+        'This reservation has expired and cannot be claimed',
         409
       );
     if (reservation.status === 'claimed') {

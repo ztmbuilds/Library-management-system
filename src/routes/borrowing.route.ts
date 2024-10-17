@@ -34,7 +34,7 @@ router.patch(
 );
 
 router.patch(
-  '/:id/report-damanged',
+  '/:id/report-damaged',
   restrictTo([UserRole.USER]),
   validate(reportDamagedOrLostValidationRules),
   borrowingController.reportDamangedBook

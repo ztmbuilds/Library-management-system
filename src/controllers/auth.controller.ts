@@ -1,6 +1,5 @@
 import authService from '../services/auth.service';
 import { NextFunction, Request, Response } from 'express';
-import validateRequest from '../middlewares/validation-middleware';
 
 class AuthController {
   async signup(req: Request, res: Response, next: NextFunction) {

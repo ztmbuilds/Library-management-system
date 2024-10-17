@@ -22,7 +22,7 @@ class PaymentService {
 
       const response = await this.paystack.transaction.initialize(payload);
 
-      const newPayment = await Payment.create({
+      await Payment.create({
         fineId,
         amount: fine.amount,
         status: 'pending',
