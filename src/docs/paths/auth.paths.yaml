@@ -7,10 +7,32 @@ signup:
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/auth.schemas.yaml#/Signup'
+            type: object
+            properties:
+              username:
+                type: string
+                example: john_doe
+              email:
+                type: string
+                example: john_doe@example.com
+              password:
+                type: string
+                example: examplepassword
+              passwordConfirm:
+                type: string
+                example: examplepassword
+            required:
+              - username
+              - email
+              - password
+              - passwordConfirm
     responses:
-      200:
-        description: success
+      201:
+        description: User created successfully
+      422:
+        description: Validation Error
+      409:
+        description: User already exists
 
 request-email-verification:
   post:
@@ -21,10 +43,22 @@ request-email-verification:
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/auth.schemas.yaml#/Request-Email-Verification'
+            type: object
+            properties:
+              email:
+                type: string
+                example: john@example.com
+            required:
+              - email
     responses:
       200:
-        description: success
+        description: OTP sent to email successfully
+      404:
+        description: User does not exist
+      400:
+        description: User already verified
+      422:
+        description: Validation Error
 
 verify-email:
   post:
@@ -35,10 +69,28 @@ verify-email:
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/auth.schemas.yaml#/Verify-Email'
+            type: object
+            properties:
+              userId:
+                type: string
+                example: 1234567890
+              verifyToken:
+                type: string
+                example: 123456
+            required:
+              - userId
+              - verifyToken
     responses:
       200:
-        description: success
+        description: Email verified successfully
+      400:
+        description: Invalid or expired verification token
+      404:
+        description: User not found
+      409:
+        description: User already verified
+      422:
+        description: Validation Error
 
 login:
   post:
@@ -49,16 +101,30 @@ login:
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/auth.schemas.yaml#/Login'
+            type: object
+            properties:
+              username_or_email:
+                type: string
+                example: john_doe
+              password:
+                type: string
+                example: examplepassword
+            required:
+              - username_or_email
+              - password
     responses:
       200:
-        description: success
+        description: User login successful
         headers:
           Set-Cookie:
             description: Set refresh token cookie
             schema:
               type: string
               example: refreshToken=123456
+      401:
+        description: Invalid credentials
+      422:
+        description: Validation Error
 
 refresh-access-token:
   get:
@@ -76,4 +142,10 @@ refresh-access-token:
       - Auth
     responses:
       200:
-        description: success
+        description: Access Token refreshed successfully
+      422:
+        description: Validation Error
+      404:
+        description: User not found
+      401:
+        description: Invalid or expired refresh token

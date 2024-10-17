@@ -26,7 +26,13 @@ renew-book:
               - newReturnDate
     responses:
       200:
-        description: success
+        description: Book renewed successfully
+      404:
+        description: No borrowing record found
+      422:
+        description: Validation error
+      409:
+        description: You cannot renew this book because it has existing reservations
 
 return-book:
   patch:
@@ -44,7 +50,13 @@ return-book:
           type: string
     responses:
       200:
-        description: success
+        description: Book returned successfully
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/Borrowing'
+      404:
+        description: No borrowing record found
 
 report-lost:
   patch:
@@ -69,9 +81,10 @@ report-lost:
               description:
                 type: string
                 example: 'Lost the book'
+            required:
+              - description
     responses:
-      200:
-        description: success
+      $ref: '#/report-damaged/patch/responses'
 
 report-damaged:
   patch:
@@ -99,3 +112,13 @@ report-damaged:
     responses:
       200:
         description: success
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../schemas.yaml#/Borrowing'
+                - $ref: '../schemas.yaml#/Fine'
+      422:
+        description: Validation error
+      404:
+        description: No borrowing record found

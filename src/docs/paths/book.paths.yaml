@@ -9,7 +9,26 @@ books:
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/book.schemas.yaml#/Create-Book'
+            type: object
+            properties:
+              title:
+                type: string
+              author:
+                type: string
+              genre:
+                type: string
+              description:
+                type: string
+              totalCopies:
+                type: string
+              availableCopies:
+                type: string
+            required:
+              - title
+              - author
+              - genre
+              - totalCopies
+              - availableCopies
     responses:
       200:
         description: success
@@ -87,7 +106,21 @@ books{id}:
       content:
         application/json:
           schema:
-            $ref: '../components/schemas/book.schemas.yaml#/Edit-Book'
+            type: object
+            properties:
+              title:
+                type: string
+              author:
+                type: string
+              genre:
+                type: string
+              description:
+                type: string
+              totalCopies:
+                type: string
+              availableCopies:
+                type: string
+
     responses:
       200:
         description: success

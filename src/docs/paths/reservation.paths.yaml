@@ -13,7 +13,7 @@ reservations{id}:
         schema:
           type: string
     responses:
-      200:
+      204:
         description: success
 
 reservations{id}claim:
@@ -39,8 +39,17 @@ reservations{id}claim:
               returnDate:
                 type: string
                 format: date
+                example: 2024-10-20
             required:
               - returnDate
     responses:
       200:
-        description: success
+        description: 'reservation claimed and book borrowed successfully'
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/Borrowing'
+      404:
+        description: No reservation with this Id found'
+      422:
+        description: 'Validation error'

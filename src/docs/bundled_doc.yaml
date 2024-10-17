@@ -15,10 +15,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Signup'
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: john_doe
+                email:
+                  type: string
+                  example: john_doe@example.com
+                password:
+                  type: string
+                  example: examplepassword
+                passwordConfirm:
+                  type: string
+                  example: examplepassword
+              required:
+                - username
+                - email
+                - password
+                - passwordConfirm
       responses:
-        '200':
-          description: success
+        '201':
+          description: User created successfully
+        '409':
+          description: User already exists
+        '422':
+          description: Validation Error
   /auth/request-email-verification:
     post:
       summary: Request email verification
@@ -28,10 +50,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Request-Email-Verification'
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: john@example.com
+              required:
+                - email
       responses:
         '200':
-          description: success
+          description: OTP sent to email successfully
+        '400':
+          description: User already verified
+        '404':
+          description: User does not exist
+        '422':
+          description: Validation Error
   /auth/verify-email:
     post:
       summary: Verify email
@@ -41,10 +75,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Verify-Email'
+              type: object
+              properties:
+                userId:
+                  type: string
+                  example: 1234567890
+                verifyToken:
+                  type: string
+                  example: 123456
+              required:
+                - userId
+                - verifyToken
       responses:
         '200':
-          description: success
+          description: Email verified successfully
+        '400':
+          description: Invalid or expired verification token
+        '404':
+          description: User not found
+        '409':
+          description: User already verified
+        '422':
+          description: Validation Error
   /auth/login:
     post:
       summary: User login
@@ -54,16 +106,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Login'
+              type: object
+              properties:
+                username_or_email:
+                  type: string
+                  example: john_doe
+                password:
+                  type: string
+                  example: examplepassword
+              required:
+                - username_or_email
+                - password
       responses:
         '200':
-          description: success
+          description: User login successful
           headers:
             Set-Cookie:
               description: Set refresh token cookie
               schema:
                 type: string
                 example: refreshToken=123456
+        '401':
+          description: Invalid credentials
+        '422':
+          description: Validation Error
   /auth/refresh-access-token:
     get:
       security:
@@ -79,7 +145,13 @@ paths:
         - Auth
       responses:
         '200':
-          description: success
+          description: Access Token refreshed successfully
+        '401':
+          description: Invalid or expired refresh token
+        '404':
+          description: User not found
+        '422':
+          description: Validation Error
   /books:
     post:
       summary: Create book
@@ -91,7 +163,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Create-Book'
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                genre:
+                  type: string
+                description:
+                  type: string
+                totalCopies:
+                  type: string
+                availableCopies:
+                  type: string
+              required:
+                - title
+                - author
+                - genre
+                - totalCopies
+                - availableCopies
       responses:
         '200':
           description: success
@@ -161,7 +252,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Edit-Book'
+              type: object
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                genre:
+                  type: string
+                description:
+                  type: string
+                totalCopies:
+                  type: string
+                availableCopies:
+                  type: string
       responses:
         '200':
           description: success
@@ -266,7 +370,7 @@ paths:
       responses:
         '200':
           description: success
-  /users:
+  /users/profile:
     get:
       summary: Get user profile
       tags:
@@ -276,6 +380,12 @@ paths:
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
     patch:
       summary: Edit user profile
       tags:
@@ -286,10 +396,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Edit-User-Profile'
+              type: object
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
   /users/borrowing-history:
     get:
       summary: Get user borrowing history
@@ -301,11 +424,13 @@ paths:
           description: Sort results by one or more fields. Use `-` for descending order.
           schema:
             type: string
+          example: '-borrowDate,-returnDate'
         - name: fields
           in: query
           description: Specify the fields to include or exclude. Use `-` to exclude fields.
           schema:
             type: string
+          example: '-renewed,-returned'
         - name: page
           in: query
           description: The page number of the results to retrieve.
@@ -325,6 +450,12 @@ paths:
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Borrowing'
   /users/reservations:
     get:
       summary: Get user reservations
@@ -360,6 +491,12 @@ paths:
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
   /users/fines:
     get:
       summary: Get user fines
@@ -395,6 +532,12 @@ paths:
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fine'
   /reservations/{id}:
     delete:
       summary: Cancel reservation
@@ -410,7 +553,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        '204':
           description: success
   /reservations/{id}/claim:
     patch:
@@ -435,11 +578,20 @@ paths:
                 returnDate:
                   type: string
                   format: date
+                  example: '2024-10-20'
               required:
                 - returnDate
       responses:
         '200':
-          description: success
+          description: reservation claimed and book borrowed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing'
+        '404':
+          description: No reservation with this Id found'
+        '422':
+          description: Validation error
   /borrowings/{id}/renew:
     patch:
       summary: Renew book
@@ -468,7 +620,13 @@ paths:
                 - newReturnDate
       responses:
         '200':
-          description: success
+          description: Book renewed successfully
+        '404':
+          description: No borrowing record found
+        '409':
+          description: You cannot renew this book because it has existing reservations
+        '422':
+          description: Validation error
   /borrowings/{id}/return:
     patch:
       summary: Return book
@@ -485,7 +643,13 @@ paths:
             type: string
       responses:
         '200':
-          description: success
+          description: Book returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing'
+        '404':
+          description: No borrowing record found
   /borrowings/{id}/report-lost:
     patch:
       summary: Report lost book
@@ -509,9 +673,21 @@ paths:
                 description:
                   type: string
                   example: Lost the book
+              required:
+                - description
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Borrowing'
+                  - $ref: '#/components/schemas/Fine'
+        '404':
+          description: No borrowing record found
+        '422':
+          description: Validation error
   /borrowings/{id}/report-damaged:
     patch:
       summary: Report damaged book
@@ -538,6 +714,16 @@ paths:
       responses:
         '200':
           description: success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Borrowing'
+                  - $ref: '#/components/schemas/Fine'
+        '404':
+          description: No borrowing record found
+        '422':
+          description: Validation error
   /fines/{id}/initiate-payment:
     post:
       tags:
@@ -555,6 +741,8 @@ paths:
       responses:
         '200':
           description: success
+        '404':
+          description: Fine not found
   /fines/{id}:
     get:
       tags:
@@ -571,14 +759,17 @@ paths:
             type: string
       responses:
         '200':
-          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fine'
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
   schemas:
-    Signup:
+    User:
       type: object
       properties:
         username:
@@ -587,41 +778,18 @@ components:
           type: string
         password:
           type: string
-        passwordConfirm:
+        role:
           type: string
+          enum:
+            - admin
+            - user
+        isVerified:
+          type: boolean
       required:
         - username
         - email
         - password
-        - passwordConfirm
-    Request-Email-Verification:
-      type: object
-      properties:
-        email:
-          type: string
-      required:
-        - email
-    Verify-Email:
-      type: object
-      properties:
-        userId:
-          type: string
-        verifyToken:
-          type: string
-      required:
-        - userId
-        - verifyToken
-    Login:
-      type: object
-      properties:
-        username_or_email:
-          type: string
-        password:
-          type: string
-      required:
-        - username_or_email
-        - password
-    Create-Book:
+    Book:
       type: object
       properties:
         title:
@@ -642,27 +810,117 @@ components:
         - genre
         - totalCopies
         - availableCopies
-    Edit-Book:
+    Borrowing:
       type: object
       properties:
-        title:
+        bookId:
           type: string
-        author:
+        userId:
           type: string
-        genre:
+        borrowDate:
           type: string
+        returnDate:
+          type: string
+        actualReturnDate:
+          type: string
+        returned:
+          type: boolean
+        renewed:
+          type: boolean
+      required:
+        - bookId
+        - userId
+        - borrowDate
+        - returnDate
+    Fine:
+      type: object
+      properties:
+        borrowingId:
+          type: string
+        userId:
+          type: string
+        reason:
+          type: string
+          enum:
+            - OVERDUE
+            - DAMAGED
+            - LOST
+            - OTHER
+        amount:
+          type: number
+        status:
+          type: string
+          enum:
+            - PAID
+            - PENDING
+        paidAt:
+          type: string
+          format: date
         description:
           type: string
-        totalCopies:
-          type: string
-        availableCopies:
-          type: string
-    Edit-User-Profile:
+      required:
+        - borrowingId
+        - userId
+        - reason
+        - amount
+    Payment:
       type: object
       properties:
-        username:
+        fineId:
           type: string
-        email:
+        amount:
+          type: number
+        status:
           type: string
-        password:
+          enum:
+            - pending
+            - completed
+            - failed
+        currency:
           type: string
+        transaction_reference:
+          type: string
+      required:
+        - fineId
+        - amount
+        - status
+        - transaction_reference
+    Reservation:
+      type: object
+      properties:
+        bookId:
+          type: string
+        userId:
+          type: string
+        status:
+          type: string
+          enum:
+            - notified
+            - expired
+            - claimed
+            - pending
+        expiresAt:
+          type: string
+          format: date
+      required:
+        - bookId
+        - userId
+    Token:
+      type: object
+      properties:
+        userId:
+          type: string
+        token:
+          type: string
+          enum:
+            - reset_password
+            - verify_email
+            - refresh_token
+        expiresAt:
+          type: string
+          format: date-time
+      required:
+        - userId
+        - token
+        - expiresAt
+        - type

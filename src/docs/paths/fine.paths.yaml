@@ -15,6 +15,8 @@ initiate-payment:
     responses:
       200:
         description: success
+      404:
+        description: Fine not found
 
 get-fine:
   get:
@@ -32,4 +34,7 @@ get-fine:
           type: string
     responses:
       200:
-        description: success
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas.yaml#/Fine'

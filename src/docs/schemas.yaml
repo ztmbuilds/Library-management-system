@@ -1,0 +1,143 @@
+Book:
+  type: object
+  properties:
+    title:
+      type: string
+    author:
+      type: string
+    genre:
+      type: string
+    description:
+      type: string
+    totalCopies:
+      type: string
+    availableCopies:
+      type: string
+  required:
+    - title
+    - author
+    - genre
+    - totalCopies
+    - availableCopies
+
+User:
+  type: object
+  properties:
+    username:
+      type: string
+    email:
+      type: string
+    password:
+      type: string
+    role:
+      type: string
+      enum: [admin, user]
+    isVerified:
+      type: boolean
+  required:
+    - username
+    - email
+    - password
+
+Borrowing:
+  type: object
+  properties:
+    bookId:
+      type: string
+    userId:
+      type: string
+    borrowDate:
+      type: string
+    returnDate:
+      type: string
+    actualReturnDate:
+      type: string
+    returned:
+      type: boolean
+    renewed:
+      type: boolean
+  required:
+    - bookId
+    - userId
+    - borrowDate
+    - returnDate
+
+Fine:
+  type: object
+  properties:
+    borrowingId:
+      type: string
+    userId:
+      type: string
+    reason:
+      type: string
+      enum: [OVERDUE, DAMAGED, LOST, OTHER]
+    amount:
+      type: number
+    status:
+      type: string
+      enum: [PAID, PENDING]
+    paidAt:
+      type: string
+      format: date
+    description:
+      type: string
+  required:
+    - borrowingId
+    - userId
+    - reason
+    - amount
+
+Payment:
+  type: object
+  properties:
+    fineId:
+      type: string
+    amount:
+      type: number
+    status:
+      type: string
+      enum: [pending, completed, failed]
+    currency:
+      type: string
+    transaction_reference:
+      type: string
+  required:
+    - fineId
+    - amount
+    - status
+    - transaction_reference
+
+Reservation:
+  type: object
+  properties:
+    bookId:
+      type: string
+    userId:
+      type: string
+    status:
+      type: string
+      enum: [notified, expired, claimed, pending]
+    expiresAt:
+      type: string
+      format: date
+  required:
+    - bookId
+    - userId
+
+Token:
+  type: object
+  properties:
+    userId:
+      type: string
+    token:
+      type: string
+      enum: [reset_password, verify_email, refresh_token]
+    expiresAt:
+      type: string
+      format: date-time
+  required:
+    - userId
+    - token
+    - expiresAt
+    - type

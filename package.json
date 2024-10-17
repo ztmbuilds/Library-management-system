@@ -56,5 +56,13 @@
     "paystack-sdk": "^2.5.17",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src/",
+      "package.json",
+      "tsconfig.json",
+      ".env"
+    ]
   }
 }

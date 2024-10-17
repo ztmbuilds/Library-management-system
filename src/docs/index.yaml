@@ -32,7 +32,7 @@ paths:
     $ref: './paths/book.paths.yaml#/books{id}reservations'
 
   #User paths
-  /users:
+  /users/profile:
     $ref: './paths/user.paths.yaml#/users-profile'
   /users/borrowing-history:
     $ref: './paths/user.paths.yaml#/users-borrowing-history'
@@ -68,3 +68,18 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+  schemas:
+    User:
+      $ref: './schemas.yaml#/User'
+    Book:
+      $ref: './schemas.yaml#/Book'
+    Borrowing:
+      $ref: './schemas.yaml#/Borrowing'
+    Fine:
+      $ref: './schemas.yaml#/Fine'
+    Payment:
+      $ref: './schemas.yaml#/Payment'
+    Reservation:
+      $ref: './schemas.yaml#/Reservation'
+    Token:
+      $ref: './schemas.yaml#/Token'
