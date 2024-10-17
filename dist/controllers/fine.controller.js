@@ -30,7 +30,7 @@ class FineController {
             }
         });
     }
-    verifyFinePayment(req, res, next) {
+    verifyFinePaymentWebhook(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const hash = crypto_1.default
@@ -38,9 +38,22 @@ class FineController {
                     .update(JSON.stringify(req.body))
                     .digest('hex');
                 if (hash == req.headers['x-paystack-signature']) {
-                    yield payment_service_1.default.verifyPayment(req.body);
+                    yield payment_service_1.default.verifyPaymentWebhook(req.body);
                 }
                 res.send(200);
+            }
+            catch (err) {
+                next(err);
+            }
+        });
+    }
+    verifyFinePayment(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const payment = yield payment_service_1.default.verifyPayment(req.params.reference);
+                res.status(200).json({
+                    payment,
+                });
             }
             catch (err) {
                 next(err);

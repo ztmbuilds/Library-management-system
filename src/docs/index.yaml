@@ -63,6 +63,8 @@ paths:
     $ref: './paths/fine.paths.yaml#/initiate-payment'
   /fines/{id}:
     $ref: './paths/fine.paths.yaml#/get-fine'
+  /fines/verify/{reference}:
+    $ref: './paths/fine.paths.yaml#/verify-payment'
 
 components:
   securitySchemes:

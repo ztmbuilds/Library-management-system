@@ -308,6 +308,7 @@ paths:
               properties:
                 returnDate:
                   type: string
+                  format: date
               required:
                 - returnDate
       responses:
@@ -764,6 +765,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Fine'
+  /fines/verify/{reference}:
+    get:
+      tags:
+        - Fines
+      summary: Verify payment for fine
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          description: transaction reference
+          schema:
+            type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          description: No payment with that transaction reference found
 components:
   securitySchemes:
     bearerAuth:

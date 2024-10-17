@@ -3,6 +3,7 @@ import Payment from '../models/payment.model';
 import { PAYSTACK_SECRET_KEY } from '../config';
 import { FineService } from './fine.service';
 import { AppError } from '../middlewares/error.middleware';
+import { IFine } from '../models/Fine.model';
 
 class PaymentService {
   private paystack: Paystack;
@@ -35,7 +36,7 @@ class PaymentService {
     }
   }
 
-  async verifyPayment(event: any) {
+  async verifyPaymentWebhook(event: any) {
     try {
       const reference = event.data?.offline_reference;
       const status = event.data?.status === 'success' ? 'completed' : 'failed';
@@ -56,6 +57,38 @@ class PaymentService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async verifyPayment(reference: string) {
+    const response = await this.paystack.transaction.verify(reference);
+
+    const payment = await Payment.findOne({
+      transaction_refrence: reference,
+    }).populate<{ fineId: IFine }>('fineId');
+
+    if (!payment)
+      throw new AppError(
+        'No payment with that transaction reference found',
+        404
+      );
+
+    switch (response.data?.status) {
+      case 'success':
+        payment.status = 'completed';
+        payment.fineId.status = 'PAID';
+
+        break;
+      case 'failed':
+        payment.status = 'failed';
+        break;
+      default:
+        payment.status = 'pending';
+        break;
+    }
+
+    await payment.save();
+    await payment.fineId.save();
+    return payment;
   }
 }
 

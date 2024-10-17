@@ -17,7 +17,11 @@ class FineController {
     }
   }
 
-  async verifyFinePayment(req: Request, res: Response, next: NextFunction) {
+  async verifyFinePaymentWebhook(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const hash = crypto
         .createHmac('sha512', PAYSTACK_SECRET_KEY)
@@ -25,10 +29,22 @@ class FineController {
         .digest('hex');
 
       if (hash == req.headers['x-paystack-signature']) {
-        await PaymentService.verifyPayment(req.body);
+        await PaymentService.verifyPaymentWebhook(req.body);
       }
 
       res.send(200);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async verifyFinePayment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const payment = await PaymentService.verifyPayment(req.params.reference);
+
+      res.status(200).json({
+        payment,
+      });
     } catch (err) {
       next(err);
     }

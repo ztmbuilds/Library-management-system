@@ -164,6 +164,7 @@ books{id}borrow:
             properties:
               returnDate:
                 type: string
+                format: date
             required:
               - returnDate
 

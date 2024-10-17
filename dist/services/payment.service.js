@@ -47,7 +47,7 @@ class PaymentService {
             }
         });
     }
-    verifyPayment(event) {
+    verifyPaymentWebhook(event) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
             try {
@@ -64,6 +64,32 @@ class PaymentService {
             catch (err) {
                 throw err;
             }
+        });
+    }
+    verifyPayment(reference) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const response = yield this.paystack.transaction.verify(reference);
+            const payment = yield payment_model_1.default.findOne({
+                transaction_refrence: reference,
+            }).populate('fineId');
+            if (!payment)
+                throw new error_middleware_1.AppError('No payment with that transaction reference found', 404);
+            switch ((_a = response.data) === null || _a === void 0 ? void 0 : _a.status) {
+                case 'success':
+                    payment.status = 'completed';
+                    payment.fineId.status = 'PAID';
+                    break;
+                case 'failed':
+                    payment.status = 'failed';
+                    break;
+                default:
+                    payment.status = 'pending';
+                    break;
+            }
+            yield payment.save();
+            yield payment.fineId.save();
+            return payment;
         });
     }
 }

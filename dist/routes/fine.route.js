@@ -9,7 +9,8 @@ const passport_1 = __importDefault(require("passport"));
 const router = (0, express_1.Router)();
 router.post('/:id/initiate-payment', fine_controller_1.default.initiateFinePayment);
 //Webhook endpoint
-router.post('/verify', fine_controller_1.default.verifyFinePayment);
+router.post('/verify', fine_controller_1.default.verifyFinePaymentWebhook);
 router.use(passport_1.default.authenticate('jwt', { session: false }));
 router.get('/:id', fine_controller_1.default.getFine);
+router.get('/verify/:reference', fine_controller_1.default.verifyFinePayment);
 exports.default = router;
