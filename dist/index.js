@@ -18,12 +18,25 @@ const config_1 = require("./config");
 require("./database/index");
 const app_1 = __importDefault(require("./app"));
 const cron_1 = require("./cron");
+const redis_1 = require("redis");
 process.on('uncaughtException', (err) => {
     console.log('UNCAUGHT EXCEPTION!💥 Shutting Down....');
     console.log(err.name, err.message);
     process.exit(1);
 });
 const start = () => __awaiter(void 0, void 0, void 0, function* () {
+    const redisClient = (0, redis_1.createClient)({
+        url: config_1.REDIS_URL,
+    });
+    redisClient.connect().catch((err) => {
+        console.error('Error connecting to Redis: ', err);
+    });
+    redisClient.on('connect', () => {
+        console.log('Connected to Redis');
+    });
+    redisClient.on('ready', () => {
+        console.log('Redis client is ready to use');
+    });
     app_1.default.listen(config_1.PORT, () => __awaiter(void 0, void 0, void 0, function* () {
         console.log(`:::> 🚀 Server ready at http://localhost:${config_1.PORT}`);
         console.log(`:::> 🚀 View swagger documentation at http://localhost:${config_1.PORT}/api/docs`);

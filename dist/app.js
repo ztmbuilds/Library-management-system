@@ -18,6 +18,17 @@ const user_route_1 = __importDefault(require("./routes/user.route"));
 const reservation_route_1 = __importDefault(require("./routes/reservation.route"));
 const borrowing_route_1 = __importDefault(require("./routes/borrowing.route"));
 const fine_route_1 = __importDefault(require("./routes/fine.route"));
+const api_1 = require("@bull-board/api");
+const bullAdapter_1 = require("@bull-board/api/bullAdapter");
+const express_2 = require("@bull-board/express");
+const email_queue_1 = __importDefault(require("./queues/email.queue"));
+//Bull-board Configs
+const serverAdapter = new express_2.ExpressAdapter();
+serverAdapter.setBasePath('/admin/queues');
+const { addQueue, removeQueue, setQueues, replaceQueues } = (0, api_1.createBullBoard)({
+    queues: [new bullAdapter_1.BullAdapter(email_queue_1.default)],
+    serverAdapter: serverAdapter,
+});
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cookie_parser_1.default)());
@@ -30,6 +41,8 @@ app.use('/api/users', user_route_1.default);
 app.use('/api/reservations', reservation_route_1.default);
 app.use('/api/borrowings', borrowing_route_1.default);
 app.use('/api/fines', fine_route_1.default);
+//Bull-board route
+app.use('/admin/queues', serverAdapter.getRouter());
 const swagDoc = yamljs_1.default.load(path_1.default.join(__dirname, './docs/bundled_doc.yaml'));
 app.use('/api/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagDoc));
 //Handling unhandled routes.

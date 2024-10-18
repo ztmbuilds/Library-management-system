@@ -2,6 +2,7 @@ import nodemailer, { TransportOptions } from 'nodemailer';
 import { MAILER } from '../config';
 import { AppError } from '../middlewares/error.middleware';
 import { IUser } from '../models/user.model';
+import emailQueue from '../queues/email.queue';
 
 export default class EmailService {
   user: IUser;
@@ -10,7 +11,7 @@ export default class EmailService {
     this.user = user;
   }
 
-  private async sendMail(subject: string, message: string, receipient: string) {
+  async sendMail(subject: string, message: string, receipient: string) {
     const transporter = nodemailer.createTransport({
       host: MAILER.HOST,
       port: MAILER.PORT,
@@ -36,7 +37,7 @@ export default class EmailService {
     const message = `Hey ${this.user.username}. \n Your OTP is ${token}`;
     const receipient = this.user.email;
 
-    return await this.sendMail(subject, message, receipient);
+    emailQueue.add({ subject, message, receipient, user: this.user });
   }
 
   async sendVerificationSuccessMail() {
@@ -44,28 +45,42 @@ export default class EmailService {
     const message = ` Hey ${this.user.username} Your email has been verified successfully`;
     const receipient = this.user.email;
 
-    return await this.sendMail(subject, message, receipient);
+    emailQueue.add({ subject, message, receipient, user: this.user });
   }
 
   async sendReservationSuccessMail(bookTitle: string, bookAuthor: string) {
     const subject = 'Reservation Created Successfully';
     const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been created successfully`;
 
-    return await this.sendMail(subject, message, this.user.email);
+    emailQueue.add({
+      subject,
+      message,
+      recepient: this.user.email,
+      user: this.user,
+    });
   }
 
   async sendReservationCancelMail(bookTitle: string, bookAuthor: string) {
     const subject = 'Reservation Canceled Successfully';
 
     const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been canceled successfully`;
-
-    return await this.sendMail(subject, message, this.user.email);
+    emailQueue.add({
+      subject,
+      message,
+      receipient: this.user.email,
+      user: this.user,
+    });
   }
 
   async sendReservationClaimableMail(bookTitle: string, bookAuthor: string) {
     const subject = 'Reservation Claimable';
     const message = `Hey ${this.user.username}, \n Your reservation for ${bookTitle} by ${bookAuthor} is now claimable. Please log in to the library system to claim it.`;
 
-    return await this.sendMail(subject, message, this.user.email);
+    emailQueue.add({
+      subject,
+      message,
+      receipient: this.user.email,
+      user: this.user,
+    });
   }
 }

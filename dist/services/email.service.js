@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const config_1 = require("../config");
 const error_middleware_1 = require("../middlewares/error.middleware");
+const email_queue_1 = __importDefault(require("../queues/email.queue"));
 class EmailService {
     constructor(user) {
         this.user = user;
@@ -45,7 +46,7 @@ class EmailService {
             const subject = 'Email Verification';
             const message = `Hey ${this.user.username}. \n Your OTP is ${token}`;
             const receipient = this.user.email;
-            return yield this.sendMail(subject, message, receipient);
+            email_queue_1.default.add({ subject, message, receipient, user: this.user });
         });
     }
     sendVerificationSuccessMail() {
@@ -53,28 +54,43 @@ class EmailService {
             const subject = 'Email Verification Success';
             const message = ` Hey ${this.user.username} Your email has been verified successfully`;
             const receipient = this.user.email;
-            return yield this.sendMail(subject, message, receipient);
+            email_queue_1.default.add({ subject, message, receipient, user: this.user });
         });
     }
     sendReservationSuccessMail(bookTitle, bookAuthor) {
         return __awaiter(this, void 0, void 0, function* () {
             const subject = 'Reservation Created Successfully';
             const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been created successfully`;
-            return yield this.sendMail(subject, message, this.user.email);
+            email_queue_1.default.add({
+                subject,
+                message,
+                recepient: this.user.email,
+                user: this.user,
+            });
         });
     }
     sendReservationCancelMail(bookTitle, bookAuthor) {
         return __awaiter(this, void 0, void 0, function* () {
             const subject = 'Reservation Canceled Successfully';
             const message = `Hey ${this.user.username}, \n Your reservation for  ${bookTitle} by ${bookAuthor} has been canceled successfully`;
-            return yield this.sendMail(subject, message, this.user.email);
+            email_queue_1.default.add({
+                subject,
+                message,
+                receipient: this.user.email,
+                user: this.user,
+            });
         });
     }
     sendReservationClaimableMail(bookTitle, bookAuthor) {
         return __awaiter(this, void 0, void 0, function* () {
             const subject = 'Reservation Claimable';
             const message = `Hey ${this.user.username}, \n Your reservation for ${bookTitle} by ${bookAuthor} is now claimable. Please log in to the library system to claim it.`;
-            return yield this.sendMail(subject, message, this.user.email);
+            email_queue_1.default.add({
+                subject,
+                message,
+                receipient: this.user.email,
+                user: this.user,
+            });
         });
     }
 }
